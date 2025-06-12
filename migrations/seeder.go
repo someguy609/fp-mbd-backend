@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"seeds"
+	"fp_mbd/migrations/seeds"
 
 	"gorm.io/gorm"
 )
