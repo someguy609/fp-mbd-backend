@@ -4,10 +4,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/Caknoooo/go-gin-clean-starter/command"
-	"github.com/Caknoooo/go-gin-clean-starter/middleware"
-	"github.com/Caknoooo/go-gin-clean-starter/provider"
-	"github.com/Caknoooo/go-gin-clean-starter/routes"
+	"fp_mbd/command"
+	"fp_mbd/middleware"
+	"fp_mbd/provider"
+	"fp_mbd/routes"
+
 	"github.com/samber/do"
 
 	"github.com/common-nighthawk/go-figure"

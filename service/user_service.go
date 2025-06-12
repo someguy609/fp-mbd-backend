@@ -5,18 +5,20 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"html/template"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/Caknoooo/go-gin-clean-starter/constants"
-	"github.com/Caknoooo/go-gin-clean-starter/dto"
-	"github.com/Caknoooo/go-gin-clean-starter/entity"
-	"github.com/Caknoooo/go-gin-clean-starter/helpers"
-	"github.com/Caknoooo/go-gin-clean-starter/repository"
-	"github.com/Caknoooo/go-gin-clean-starter/utils"
+	"gorm.io/gorm"
+
+	"fp_mbd/constants"
+	"fp_mbd/dto"
+	"fp_mbd/entity"
+	"fp_mbd/helpers"
+	"fp_mbd/repository"
+	"fp_mbd/utils"
+
 	"github.com/google/uuid"
 )
 

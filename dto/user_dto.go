@@ -4,7 +4,7 @@ import (
 	"errors"
 	"mime/multipart"
 
-	"github.com/Caknoooo/go-gin-clean-starter/entity"
+	"fp_mbd/entity"
 )
 
 const (

@@ -1,9 +1,10 @@
 package provider
 
 import (
-	"github.com/Caknoooo/go-gin-clean-starter/config"
-	"github.com/Caknoooo/go-gin-clean-starter/constants"
-	"github.com/Caknoooo/go-gin-clean-starter/service"
+	"fp_mbd/config"
+	"fp_mbd/constants"
+	"fp_mbd/service"
+
 	"github.com/samber/do"
 	"gorm.io/gorm"
 )

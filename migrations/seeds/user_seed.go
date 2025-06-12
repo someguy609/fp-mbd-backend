@@ -6,7 +6,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/Caknoooo/go-gin-clean-starter/entity"
+	"fp_mbd/entity"
+
 	"gorm.io/gorm"
 )
 
