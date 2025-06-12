@@ -1,18 +1,170 @@
 [
   {
-    "name": "admin",
-    "telp_number": "08123456789",
-    "email": "admin1234@gmail.com",
-    "password": "admin1234",
+    "user_id": "197104281994123001",
+    "name": "Admin Utama",
+    "email": "admin@admin.ac.id",
     "role": "admin",
-    "is_verified": true
+    "contact_info": "081234567890",
+    "password": "admin1"
   },
   {
-    "name": "user",
-    "telp_number": "08123456789",
-    "email": "user1234@gmail.com",
-    "password": "user1234",
-    "role": "user",
-    "is_verified": true
+    "user_id": "197104281994124123",
+    "name": "Dr. Budi Santoso",
+    "email": "budi.s@dosen.ac.id",
+    "role": "dosen",
+    "contact_info": "081111111111",
+    "password": "dosen1"
+  },
+  {
+    "user_id": "197104281994124123",
+    "name": "Prof. Indah Lestari",
+    "email": "indah.l@example.ac.id",
+    "role": "dosen",
+    "contact_info": "082222222222",
+    "password": "dosen2"
+  },
+  {
+    "user_id": "197104281994124234",
+    "name": "Dr. Agus Wijaya",
+    "email": "agus.w@example.ac.id",
+    "role": "dosen",
+    "contact_info": "083333333333",
+    "password": "hashed_password_dosen3"
+  },
+  {
+    "user_id": "197104281994124345",
+    "name": "Dr. Rina Puspita",
+    "email": "rina.p@example.ac.id",
+    "role": "dosen",
+    "contact_info": "084444444444",
+    "password": "hashed_password_dosen4"
+  },
+  {
+    "user_id": "197104281994124456",
+    "name": "Prof. Joko Susilo",
+    "email": "joko.s@example.ac.id",
+    "role": "dosen",
+    "contact_info": "085555555555",
+    "password": "hashed_password_dosen5"
+  },
+  {
+    "user_id": "5025231172",
+    "name": "Muh Khairul Amtsal",
+    "email": "5025231172@student.its.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "085333029778",
+    "password": "Amtsal.101"
+  },
+  {
+    "user_id": "502231030",
+    "name": "I Gusti Ngurah Arya Sudewa",
+    "email": "502231030@student.its.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000002",
+    "password": "AryaSudewa.101"
+  },
+  {
+    "user_id": "502231097",
+    "name": "Daniel Adhitthana",
+    "email": "502231097@student.its.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000003",
+    "password": "Daniel.101"
+  },
+  {
+    "user_id": "5025231156",
+    "name": "Putu Ardanantha Pratama",
+    "email": "5025231156@student.its.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000004",
+    "password": "Arda.101"
+  },
+  {
+    "user_id": "5022311736",
+    "name": "Eko Prasetyo",
+    "email": "eko.p@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000005",
+    "password": "hashed_password_mhs5"
+  },
+  {
+    "user_id": "502231177",
+    "name": "Fitriana Sari",
+    "email": "fitriana.s@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000006",
+    "password": "hashed_password_mhs6"
+  },
+  {
+    "user_id": "502231178",
+    "name": "Gilang Ramadhan",
+    "email": "gilang.r@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000007",
+    "password": "hashed_password_mhs7"
+  },
+  {
+    "user_id": "502231179",
+    "name": "Hana Yulita",
+    "email": "hana.y@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000008",
+    "password": "hashed_password_mhs8"
+  },
+  {
+    "user_id": "502231180",
+    "name": "Irfan Maulana",
+    "email": "irfan.m@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000009",
+    "password": "hashed_password_mhs9"
+  },
+  {
+    "user_id": "502231181",
+    "name": "Jasmine Putri",
+    "email": "jasmine.p@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000010",
+    "password": "hashed_password_mhs10"
+  },
+  {
+    "user_id": "502231182",
+    "name": "Kevin Sanjaya",
+    "email": "kevin.s@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000011",
+    "password": "hashed_password_mhs11"
+  },
+  {
+    "user_id": "502231183",
+    "name": "Lia Anggraini",
+    "email": "lia.a@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000012",
+    "password": "hashed_password_mhs12"
+  },
+  {
+    "user_id": "502231184",
+    "name": "Muhammad Zaki",
+    "email": "muhammad.z@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000013",
+    "password": "hashed_password_mhs13"
+  },
+  {
+    "user_id": "502231185",
+    "name": "Nadia Farida",
+    "email": "nadia.f@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000014",
+    "password": "hashed_password_mhs14"
+  },
+  {
+    "user_id": "502231186",
+    "name": "Oscar Wibowo",
+    "email": "oscar.w@student.example.ac.id",
+    "role": "mahasiswa",
+    "contact_info": "089100000015",
+    "password": "hashed_password_mhs15"
   }
 ]

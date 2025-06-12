@@ -3,9 +3,12 @@ package controller
 import (
 	"net/http"
 
-	"github.com/Caknoooo/go-gin-clean-starter/dto"
-	"github.com/Caknoooo/go-gin-clean-starter/service"
-	"github.com/Caknoooo/go-gin-clean-starter/utils"
+	"fp_mbd/dto"
+
+	"fp_mbd/service"
+
+	"fp_mbd/utils"
+
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,15 +1,18 @@
 package migrations
 
 import (
-	"github.com/Caknoooo/go-gin-clean-starter/entity"
+	"os"
+
 	"gorm.io/gorm"
 )
 
 func Migrate(db *gorm.DB) error {
-	if err := db.AutoMigrate(
-		&entity.User{},
-		&entity.RefreshToken{},
-	); err != nil {
+	sqlScript, err := os.ReadFile("database.sql")
+
+	if err != nil {
+		return err
+	}
+	if err := db.Exec(string(sqlScript)).Error; err != nil {
 		return err
 	}
 

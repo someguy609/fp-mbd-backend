@@ -1,29 +1,61 @@
-CREATE DATABASE golang_template;
+-- CREATE DATABASE golang_template;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- migrations/users.sql
+-- Tabel Pengguna (Users)
 CREATE TABLE users (
-    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-    nama        VARCHAR(100) NOT NULL,
-    no_telp     VARCHAR(30) NOT NULL,
-    email       VARCHAR(100) NOT NULL,
-    password    VARCHAR(100) NOT NULL,
-    role        VARCHAR(100) NOT NULL,
-    created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    user_id VARCHAR(15) PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL UNIQUE,
+    role VARCHAR(10) NOT NULL, 
+    contact_info VARCHAR(100),
+    password VARCHAR(255) NOT NULL 
 );
 
--- migrations/refresh_tokens.sql
-CREATE TABLE refresh_tokens (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    token VARCHAR(255) NOT NULL,
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    deleted_at TIMESTAMP WITH TIME ZONE
+-- Tabel Proyek (Projects)
+CREATE TABLE projects (
+    project_id SERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    description TEXT,
+    status VARCHAR(20) NOT NULL, 
+    start_date TIMESTAMP,
+    end_date TIMESTAMP,
+    categories VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
-CREATE UNIQUE INDEX idx_refresh_tokens_token ON refresh_tokens(token);
+-- Tabel Anggota Proyek (Project Members)
+CREATE TABLE project_members (
+    project_member_id SERIAL PRIMARY KEY,
+    role_project VARCHAR(10) NOT NULL, 
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    users_user_id VARCHAR(15) NOT NULL,
+    projects_project_id INT NOT NULL,
+    FOREIGN KEY (users_user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (projects_project_id) REFERENCES projects(project_id) ON DELETE CASCADE
+);
+
+-- Tabel Milestone Proyek
+CREATE TABLE milestones (
+    milestone_id SERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    description TEXT,
+    due_date TIMESTAMP,
+    status VARCHAR(100) NOT NULL, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    projects_project_id INT NOT NULL,
+    FOREIGN KEY (projects_project_id) REFERENCES projects(project_id) ON DELETE CASCADE
+);
+
+-- Tabel Dokumen
+CREATE TABLE documents (
+    document_id SERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    file_url VARCHAR(255) NOT NULL,
+    document_type VARCHAR(100), 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    projects_project_id INT NOT NULL,
+    users_user_id VARCHAR(15) NOT NULL,
+    FOREIGN KEY (projects_project_id) REFERENCES projects(project_id) ON DELETE CASCADE,
+    FOREIGN KEY (users_user_id) REFERENCES users(user_id) ON DELETE SET NULL
+);
