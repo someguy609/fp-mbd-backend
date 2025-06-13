@@ -75,7 +75,7 @@ func Test_Register_OK(t *testing.T) {
 	uc := SetupControllerUser()
 	r.POST("/api/user", uc.Register)
 
-	payload := dto.UserCreateRequest{Name: "testuser", TelpNumber: "12345678", Email: "test@example.com", Password: "password123"}
+	payload := dto.UserCreateRequest{Name: "testuser", ContactInfo: "12345678", Email: "test@example.com", Password: "password123"}
 	b, _ := json.Marshal(payload)
 	req, _ := http.NewRequest(http.MethodPost, "/api/user", bytes.NewBuffer(b))
 	req.Header.Set("Content-Type", "application/json")
@@ -270,7 +270,7 @@ func Test_Me_OK(t *testing.T) {
 	r.GET("/api/user/me", func(c *gin.Context) {
 		// insert and set user_id
 		users, _ := InsertTestUser()
-		c.Set("user_id", users[0].ID)
+		c.Set("user_id", users[0].UserID)
 		userController.Me(c)
 	})
 
@@ -296,13 +296,13 @@ func Test_Update_OK(t *testing.T) {
 	userController := SetupControllerUser()
 	r.PUT("/api/user", func(c *gin.Context) {
 		users, _ := InsertTestUser()
-		c.Set("user_id", users[1].ID)
+		c.Set("user_id", users[1].UserID)
 		userController.Update(c)
 	})
 
 	update := dto.UserUpdateRequest{
-		Name:       "updatedName",
-		TelpNumber: "87654321",
+		Name:        "updatedName",
+		ContactInfo: "87654321",
 	}
 	body, _ := json.Marshal(update)
 	req, _ := http.NewRequest(http.MethodPut, "/api/user", bytes.NewBuffer(body))
@@ -328,7 +328,7 @@ func Test_Delete_OK(t *testing.T) {
 	userController := SetupControllerUser()
 	r.DELETE("/api/user", func(c *gin.Context) {
 		users, _ := InsertTestUser()
-		c.Set("user_id", users[0].ID)
+		c.Set("user_id", users[0].UserID)
 		userController.Delete(c)
 	})
 
