@@ -1,25 +1,15 @@
 package service
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"fmt"
-	"html/template"
-	"os"
-	"strings"
-	"time"
 
 	"gorm.io/gorm"
 
-	"fp_mbd/constants"
 	"fp_mbd/dto"
 	"fp_mbd/entity"
 	"fp_mbd/helpers"
 	"fp_mbd/repository"
-	"fp_mbd/utils"
-
-	"github.com/google/uuid"
 )
 
 type (
@@ -28,13 +18,13 @@ type (
 		GetAllUserWithPagination(ctx context.Context, req dto.PaginationRequest) (dto.UserPaginationResponse, error)
 		GetUserById(ctx context.Context, userId string) (dto.UserResponse, error)
 		GetUserByEmail(ctx context.Context, email string) (dto.UserResponse, error)
-		SendVerificationEmail(ctx context.Context, req dto.SendVerificationEmailRequest) error
-		VerifyEmail(ctx context.Context, req dto.VerifyEmailRequest) (dto.VerifyEmailResponse, error)
 		Update(ctx context.Context, req dto.UserUpdateRequest, userId string) (dto.UserUpdateResponse, error)
 		Delete(ctx context.Context, userId string) error
 		Verify(ctx context.Context, req dto.UserLoginRequest) (dto.TokenResponse, error)
-		RefreshToken(ctx context.Context, req dto.RefreshTokenRequest) (dto.TokenResponse, error)
-		RevokeRefreshToken(ctx context.Context, userID string) error
+		// SendVerificationEmail(ctx context.Context, req dto.SendVerificationEmailRequest) error
+		// VerifyEmail(ctx context.Context, req dto.VerifyEmailRequest) (dto.VerifyEmailResponse, error)
+		// Verify(ctx context.Context, req dto.UserLoginRequest) (dto.TokenResponse, error)
+		// RefreshToken(ctx context.Context, req dto.RefreshTokenRequest) (dto.TokenResponse, error)
 	}
 
 	userService struct {
@@ -73,7 +63,6 @@ func SafeRollback(tx *gorm.DB) {
 }
 
 func (s *userService) Register(ctx context.Context, req dto.UserCreateRequest) (dto.UserResponse, error) {
-	var filename string
 
 	_, flag, err := s.userRepo.CheckEmail(ctx, nil, req.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -84,24 +73,15 @@ func (s *userService) Register(ctx context.Context, req dto.UserCreateRequest) (
 		return dto.UserResponse{}, dto.ErrEmailAlreadyExists
 	}
 
-	if req.Image != nil {
-		imageId := uuid.New()
-		ext := utils.GetExtensions(req.Image.Filename)
-
-		filename = fmt.Sprintf("profile/%s.%s", imageId, ext)
-		if err := utils.UploadFile(req.Image, filename); err != nil {
-			return dto.UserResponse{}, err
-		}
-	}
+	role := helpers.CheckRole(req.UserID)
 
 	user := entity.User{
-		Name:       req.Name,
-		TelpNumber: req.TelpNumber,
-		ImageUrl:   filename,
-		Role:       constants.ENUM_ROLE_USER,
-		Email:      req.Email,
-		Password:   req.Password,
-		IsVerified: false,
+		Name:        req.Name,
+		UserID:      req.UserID,
+		Email:       req.Email,
+		Role:        role,
+		ContactInfo: req.ContactInfo,
+		Password:    req.Password,
 	}
 
 	userReg, err := s.userRepo.Register(ctx, nil, user)
@@ -109,138 +89,86 @@ func (s *userService) Register(ctx context.Context, req dto.UserCreateRequest) (
 		return dto.UserResponse{}, dto.ErrCreateUser
 	}
 
-	draftEmail, err := makeVerificationEmail(userReg.Email)
-	if err != nil {
-		return dto.UserResponse{}, err
-	}
-
-	err = utils.SendMail(userReg.Email, draftEmail["subject"], draftEmail["body"])
-	if err != nil {
-		return dto.UserResponse{}, err
-	}
-
 	return dto.UserResponse{
-		ID:         userReg.ID.String(),
-		Name:       userReg.Name,
-		TelpNumber: userReg.TelpNumber,
-		ImageUrl:   userReg.ImageUrl,
-		Role:       userReg.Role,
-		Email:      userReg.Email,
-		IsVerified: userReg.IsVerified,
+		UserID:      userReg.UserID,
+		Name:        userReg.Name,
+		Email:       userReg.Email,
+		Role:        userReg.Role,
+		ContactInfo: userReg.ContactInfo,
 	}, nil
+
 }
 
-func makeVerificationEmail(receiverEmail string) (map[string]string, error) {
-	expired := time.Now().Add(time.Hour * 24).Format("2006-01-02 15:04:05")
-	plainText := receiverEmail + "_" + expired
-	token, err := utils.AESEncrypt(plainText)
-	if err != nil {
-		return nil, err
-	}
+// func (s *userService) SendVerificationEmail(ctx context.Context, req dto.SendVerificationEmailRequest) error {
+// 	user, err := s.userRepo.GetUserByEmail(ctx, nil, req.Email)
+// 	if err != nil {
+// 		return dto.ErrEmailNotFound
+// 	}
 
-	verifyLink := LOCAL_URL + "/" + VERIFY_EMAIL_ROUTE + "?token=" + token
+// 	draftEmail, err := makeVerificationEmail(user.Email)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	readHtml, err := os.ReadFile("utils/email-template/base_mail.html")
-	if err != nil {
-		return nil, err
-	}
+// 	err = utils.SendMail(user.Email, draftEmail["subject"], draftEmail["body"])
+// 	if err != nil {
+// 		return err
+// 	}
 
-	data := struct {
-		Email  string
-		Verify string
-	}{
-		Email:  receiverEmail,
-		Verify: verifyLink,
-	}
+// 	return nil
+// }
 
-	tmpl, err := template.New("custom").Parse(string(readHtml))
-	if err != nil {
-		return nil, err
-	}
+// func (s *userService) VerifyEmail(ctx context.Context, req dto.VerifyEmailRequest) (dto.VerifyEmailResponse, error) {
+// 	decryptedToken, err := utils.AESDecrypt(req.Token)
+// 	if err != nil {
+// 		return dto.VerifyEmailResponse{}, dto.ErrTokenInvalid
+// 	}
 
-	var strMail bytes.Buffer
-	if err := tmpl.Execute(&strMail, data); err != nil {
-		return nil, err
-	}
+// 	if !strings.Contains(decryptedToken, "_") {
+// 		return dto.VerifyEmailResponse{}, dto.ErrTokenInvalid
+// 	}
 
-	draftEmail := map[string]string{
-		"subject": "Cakno - Go Gin Template",
-		"body":    strMail.String(),
-	}
+// 	decryptedTokenSplit := strings.Split(decryptedToken, "_")
+// 	email := decryptedTokenSplit[0]
+// 	expired := decryptedTokenSplit[1]
 
-	return draftEmail, nil
-}
+// 	now := time.Now()
+// 	expiredTime, err := time.Parse("2006-01-02 15:04:05", expired)
+// 	if err != nil {
+// 		return dto.VerifyEmailResponse{}, dto.ErrTokenInvalid
+// 	}
 
-func (s *userService) SendVerificationEmail(ctx context.Context, req dto.SendVerificationEmailRequest) error {
-	user, err := s.userRepo.GetUserByEmail(ctx, nil, req.Email)
-	if err != nil {
-		return dto.ErrEmailNotFound
-	}
+// 	if expiredTime.Sub(now) < 0 {
+// 		return dto.VerifyEmailResponse{
+// 			Email:      email,
+// 			IsVerified: false,
+// 		}, dto.ErrTokenExpired
+// 	}
 
-	draftEmail, err := makeVerificationEmail(user.Email)
-	if err != nil {
-		return err
-	}
+// 	user, err := s.userRepo.GetUserByEmail(ctx, nil, email)
+// 	if err != nil {
+// 		return dto.VerifyEmailResponse{}, dto.ErrUserNotFound
+// 	}
 
-	err = utils.SendMail(user.Email, draftEmail["subject"], draftEmail["body"])
-	if err != nil {
-		return err
-	}
+// 	if user.IsVerified {
+// 		return dto.VerifyEmailResponse{}, dto.ErrAccountAlreadyVerified
+// 	}
 
-	return nil
-}
+// 	updatedUser, err := s.userRepo.Update(
+// 		ctx, nil, entity.User{
+// 			ID:         user.ID,
+// 			IsVerified: true,
+// 		},
+// 	)
+// 	if err != nil {
+// 		return dto.VerifyEmailResponse{}, dto.ErrUpdateUser
+// 	}
 
-func (s *userService) VerifyEmail(ctx context.Context, req dto.VerifyEmailRequest) (dto.VerifyEmailResponse, error) {
-	decryptedToken, err := utils.AESDecrypt(req.Token)
-	if err != nil {
-		return dto.VerifyEmailResponse{}, dto.ErrTokenInvalid
-	}
-
-	if !strings.Contains(decryptedToken, "_") {
-		return dto.VerifyEmailResponse{}, dto.ErrTokenInvalid
-	}
-
-	decryptedTokenSplit := strings.Split(decryptedToken, "_")
-	email := decryptedTokenSplit[0]
-	expired := decryptedTokenSplit[1]
-
-	now := time.Now()
-	expiredTime, err := time.Parse("2006-01-02 15:04:05", expired)
-	if err != nil {
-		return dto.VerifyEmailResponse{}, dto.ErrTokenInvalid
-	}
-
-	if expiredTime.Sub(now) < 0 {
-		return dto.VerifyEmailResponse{
-			Email:      email,
-			IsVerified: false,
-		}, dto.ErrTokenExpired
-	}
-
-	user, err := s.userRepo.GetUserByEmail(ctx, nil, email)
-	if err != nil {
-		return dto.VerifyEmailResponse{}, dto.ErrUserNotFound
-	}
-
-	if user.IsVerified {
-		return dto.VerifyEmailResponse{}, dto.ErrAccountAlreadyVerified
-	}
-
-	updatedUser, err := s.userRepo.Update(
-		ctx, nil, entity.User{
-			ID:         user.ID,
-			IsVerified: true,
-		},
-	)
-	if err != nil {
-		return dto.VerifyEmailResponse{}, dto.ErrUpdateUser
-	}
-
-	return dto.VerifyEmailResponse{
-		Email:      email,
-		IsVerified: updatedUser.IsVerified,
-	}, nil
-}
+// 	return dto.VerifyEmailResponse{
+// 		Email:      email,
+// 		IsVerified: updatedUser.IsVerified,
+// 	}, nil
+// }
 
 func (s *userService) GetAllUserWithPagination(
 	ctx context.Context,
@@ -254,13 +182,11 @@ func (s *userService) GetAllUserWithPagination(
 	var datas []dto.UserResponse
 	for _, user := range dataWithPaginate.Users {
 		data := dto.UserResponse{
-			ID:         user.ID.String(),
-			Name:       user.Name,
-			Email:      user.Email,
-			Role:       user.Role,
-			TelpNumber: user.TelpNumber,
-			ImageUrl:   user.ImageUrl,
-			IsVerified: user.IsVerified,
+			UserID:      user.UserID,
+			Name:        user.Name,
+			Email:       user.Email,
+			Role:        user.Role,
+			ContactInfo: user.ContactInfo,
 		}
 
 		datas = append(datas, data)
@@ -276,7 +202,6 @@ func (s *userService) GetAllUserWithPagination(
 		},
 	}, nil
 }
-
 func (s *userService) GetUserById(ctx context.Context, userId string) (dto.UserResponse, error) {
 	user, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
@@ -284,13 +209,11 @@ func (s *userService) GetUserById(ctx context.Context, userId string) (dto.UserR
 	}
 
 	return dto.UserResponse{
-		ID:         user.ID.String(),
-		Name:       user.Name,
-		TelpNumber: user.TelpNumber,
-		Role:       user.Role,
-		Email:      user.Email,
-		ImageUrl:   user.ImageUrl,
-		IsVerified: user.IsVerified,
+		UserID:      user.UserID,
+		Name:        user.Name,
+		Email:       user.Email,
+		Role:        user.Role,
+		ContactInfo: user.ContactInfo,
 	}, nil
 }
 
@@ -301,13 +224,11 @@ func (s *userService) GetUserByEmail(ctx context.Context, email string) (dto.Use
 	}
 
 	return dto.UserResponse{
-		ID:         emails.ID.String(),
-		Name:       emails.Name,
-		TelpNumber: emails.TelpNumber,
-		Role:       emails.Role,
-		Email:      emails.Email,
-		ImageUrl:   emails.ImageUrl,
-		IsVerified: emails.IsVerified,
+		UserID:      emails.UserID,
+		Name:        emails.Name,
+		Email:       emails.Email,
+		Role:        emails.Role,
+		ContactInfo: emails.ContactInfo,
 	}, nil
 }
 
@@ -321,11 +242,11 @@ func (s *userService) Update(ctx context.Context, req dto.UserUpdateRequest, use
 	}
 
 	data := entity.User{
-		ID:         user.ID,
-		Name:       req.Name,
-		TelpNumber: req.TelpNumber,
-		Role:       user.Role,
-		Email:      req.Email,
+		UserID:      user.UserID,
+		Name:        req.Name,
+		Email:       req.Email,
+		Role:        user.Role,
+		ContactInfo: req.ContactInfo,
 	}
 
 	userUpdate, err := s.userRepo.Update(ctx, nil, data)
@@ -334,12 +255,11 @@ func (s *userService) Update(ctx context.Context, req dto.UserUpdateRequest, use
 	}
 
 	return dto.UserUpdateResponse{
-		ID:         userUpdate.ID.String(),
-		Name:       userUpdate.Name,
-		TelpNumber: userUpdate.TelpNumber,
-		Role:       userUpdate.Role,
-		Email:      userUpdate.Email,
-		IsVerified: user.IsVerified,
+		UserID:      userUpdate.UserID,
+		Name:        userUpdate.Name,
+		Email:       userUpdate.Email,
+		Role:        userUpdate.Role,
+		ContactInfo: userUpdate.ContactInfo,
 	}, nil
 }
 
@@ -352,7 +272,7 @@ func (s *userService) Delete(ctx context.Context, userId string) error {
 		return dto.ErrUserNotFound
 	}
 
-	err = s.userRepo.Delete(ctx, nil, user.ID.String())
+	err = s.userRepo.Delete(ctx, nil, user.UserID)
 	if err != nil {
 		return dto.ErrDeleteUser
 	}
@@ -376,7 +296,7 @@ func (s *userService) Verify(ctx context.Context, req dto.UserLoginRequest) (dto
 		return dto.TokenResponse{}, errors.New("invalid email or password")
 	}
 
-	accessToken := s.jwtService.GenerateAccessToken(user.ID.String(), user.Role)
+	accessToken := s.jwtService.GenerateAccessToken(user.UserID, user.Role)
 
 	refreshTokenString, expiresAt := s.jwtService.GenerateRefreshToken()
 
@@ -386,13 +306,13 @@ func (s *userService) Verify(ctx context.Context, req dto.UserLoginRequest) (dto
 		return dto.TokenResponse{}, err
 	}
 
-	if err := s.refreshTokenRepo.DeleteByUserID(ctx, tx, user.ID.String()); err != nil {
+	if err := s.refreshTokenRepo.DeleteByUserID(ctx, tx, user.UserID); err != nil {
 		tx.Rollback()
 		return dto.TokenResponse{}, err
 	}
 
 	refreshToken := entity.RefreshToken{
-		UserID:    user.ID,
+		UserID:    user.UserID,
 		Token:     hashedToken,
 		ExpiresAt: expiresAt,
 	}
@@ -413,86 +333,86 @@ func (s *userService) Verify(ctx context.Context, req dto.UserLoginRequest) (dto
 	}, nil
 }
 
-func (s *userService) RefreshToken(ctx context.Context, req dto.RefreshTokenRequest) (dto.TokenResponse, error) {
-	tx := s.db.Begin()
-	defer SafeRollback(tx)
+// func (s *userService) RefreshToken(ctx context.Context, req dto.RefreshTokenRequest) (dto.TokenResponse, error) {
+// 	tx := s.db.Begin()
+// 	defer SafeRollback(tx)
 
-	// Find the refresh token in the database
-	dbToken, err := s.refreshTokenRepo.FindByToken(ctx, tx, req.RefreshToken)
-	if err != nil {
-		tx.Rollback()
-		return dto.TokenResponse{}, errors.New(dto.MESSAGE_FAILED_INVALID_REFRESH_TOKEN)
-	}
+// 	// Find the refresh token in the database
+// 	dbToken, err := s.refreshTokenRepo.FindByToken(ctx, tx, req.RefreshToken)
+// 	if err != nil {
+// 		tx.Rollback()
+// 		return dto.TokenResponse{}, errors.New(dto.MESSAGE_FAILED_INVALID_REFRESH_TOKEN)
+// 	}
 
-	if time.Now().After(dbToken.ExpiresAt) {
-		tx.Rollback()
-		return dto.TokenResponse{}, errors.New(dto.MESSAGE_FAILED_EXPIRED_REFRESH_TOKEN)
-	}
+// 	if time.Now().After(dbToken.ExpiresAt) {
+// 		tx.Rollback()
+// 		return dto.TokenResponse{}, errors.New(dto.MESSAGE_FAILED_EXPIRED_REFRESH_TOKEN)
+// 	}
 
-	user, err := s.userRepo.GetUserById(ctx, tx, dbToken.UserID.String())
-	if err != nil {
-		tx.Rollback()
-		return dto.TokenResponse{}, dto.ErrUserNotFound
-	}
+// 	user, err := s.userRepo.GetUserById(ctx, tx, dbToken.UserID.String())
+// 	if err != nil {
+// 		tx.Rollback()
+// 		return dto.TokenResponse{}, dto.ErrUserNotFound
+// 	}
 
-	accessToken := s.jwtService.GenerateAccessToken(user.ID.String(), user.Role)
+// 	accessToken := s.jwtService.GenerateAccessToken(user.ID.String(), user.Role)
 
-	refreshTokenString, expiresAt := s.jwtService.GenerateRefreshToken()
+// 	refreshTokenString, expiresAt := s.jwtService.GenerateRefreshToken()
 
-	hashedToken, err := helpers.HashPassword(refreshTokenString)
-	if err != nil {
-		tx.Rollback()
-		return dto.TokenResponse{}, err
-	}
+// 	hashedToken, err := helpers.HashPassword(refreshTokenString)
+// 	if err != nil {
+// 		tx.Rollback()
+// 		return dto.TokenResponse{}, err
+// 	}
 
-	if err := s.refreshTokenRepo.DeleteByUserID(ctx, tx, user.ID.String()); err != nil {
-		tx.Rollback()
-		return dto.TokenResponse{}, err
-	}
+// 	if err := s.refreshTokenRepo.DeleteByUserID(ctx, tx, user.ID.String()); err != nil {
+// 		tx.Rollback()
+// 		return dto.TokenResponse{}, err
+// 	}
 
-	refreshToken := entity.RefreshToken{
-		UserID:    user.ID,
-		Token:     hashedToken,
-		ExpiresAt: expiresAt,
-	}
+// 	refreshToken := entity.RefreshToken{
+// 		UserID:    user.ID,
+// 		Token:     hashedToken,
+// 		ExpiresAt: expiresAt,
+// 	}
 
-	if _, err := s.refreshTokenRepo.Create(ctx, tx, refreshToken); err != nil {
-		tx.Rollback()
-		return dto.TokenResponse{}, err
-	}
+// 	if _, err := s.refreshTokenRepo.Create(ctx, tx, refreshToken); err != nil {
+// 		tx.Rollback()
+// 		return dto.TokenResponse{}, err
+// 	}
 
-	if err := tx.Commit().Error; err != nil {
-		return dto.TokenResponse{}, err
-	}
+// 	if err := tx.Commit().Error; err != nil {
+// 		return dto.TokenResponse{}, err
+// 	}
 
-	return dto.TokenResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshTokenString,
-		Role:         user.Role,
-	}, nil
-}
+// 	return dto.TokenResponse{
+// 		AccessToken:  accessToken,
+// 		RefreshToken: refreshTokenString,
+// 		Role:         user.Role,
+// 	}, nil
+// }
 
-func (s *userService) RevokeRefreshToken(ctx context.Context, userID string) error {
-	tx := s.db.Begin()
-	defer SafeRollback(tx)
+// func (s *userService) RevokeRefreshToken(ctx context.Context, userID string) error {
+// 	tx := s.db.Begin()
+// 	defer SafeRollback(tx)
 
-	// Check if user exists
-	_, err := s.userRepo.GetUserById(ctx, tx, userID)
-	if err != nil {
-		tx.Rollback()
-		return dto.ErrUserNotFound
-	}
+// 	// Check if user exists
+// 	_, err := s.userRepo.GetUserById(ctx, tx, userID)
+// 	if err != nil {
+// 		tx.Rollback()
+// 		return dto.ErrUserNotFound
+// 	}
 
-	// Delete all refresh tokens for the user
-	if err := s.refreshTokenRepo.DeleteByUserID(ctx, tx, userID); err != nil {
-		tx.Rollback()
-		return err
-	}
+// 	// Delete all refresh tokens for the user
+// 	if err := s.refreshTokenRepo.DeleteByUserID(ctx, tx, userID); err != nil {
+// 		tx.Rollback()
+// 		return err
+// 	}
 
-	// Commit transaction
-	if err := tx.Commit().Error; err != nil {
-		return err
-	}
+// 	// Commit transaction
+// 	if err := tx.Commit().Error; err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }

@@ -3,4 +3,4 @@ storage/
 assets/
 volumes/
 .idea/
-migrations/json/*
+migrations/json/**/*.json
