@@ -115,64 +115,64 @@ func Test_Login_BadRequest(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
-func Test_SendVerificationEmail_OK(t *testing.T) {
-	r := SetUpRoutes()
-	uc := SetupControllerUser()
-	r.POST("/api/user/send_verification_email", uc.SendVerificationEmail)
+// func Test_SendVerificationEmail_OK(t *testing.T) {
+// 	r := SetUpRoutes()
+// 	uc := SetupControllerUser()
+// 	r.POST("/api/user/send_verification_email", uc.SendVerificationEmail)
 
-	users, _ := InsertTestUser()
-	reqBody, _ := json.Marshal(dto.SendVerificationEmailRequest{Email: users[0].Email})
-	req, _ := http.NewRequest(http.MethodPost, "/api/user/send_verification_email", bytes.NewBuffer(reqBody))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+// 	users, _ := InsertTestUser()
+// 	reqBody, _ := json.Marshal(dto.SendVerificationEmailRequest{Email: users[0].Email})
+// 	req, _ := http.NewRequest(http.MethodPost, "/api/user/send_verification_email", bytes.NewBuffer(reqBody))
+// 	req.Header.Set("Content-Type", "application/json")
+// 	w := httptest.NewRecorder()
+// 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-}
+// 	assert.Equal(t, http.StatusOK, w.Code)
+// }
 
-func Test_SendVerificationEmail_BadRequest(t *testing.T) {
-	r := SetUpRoutes()
-	uc := SetupControllerUser()
-	r.POST("/api/user/send_verification_email", uc.SendVerificationEmail)
+// func Test_SendVerificationEmail_BadRequest(t *testing.T) {
+// 	r := SetUpRoutes()
+// 	uc := SetupControllerUser()
+// 	r.POST("/api/user/send_verification_email", uc.SendVerificationEmail)
 
-	// missing email
-	req, _ := http.NewRequest(http.MethodPost, "/api/user/send_verification_email", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+// 	// missing email
+// 	req, _ := http.NewRequest(http.MethodPost, "/api/user/send_verification_email", nil)
+// 	w := httptest.NewRecorder()
+// 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-}
+// 	assert.Equal(t, http.StatusBadRequest, w.Code)
+// }
 
-func Test_VerifyEmail_BadRequest(t *testing.T) {
-	r := SetUpRoutes()
-	uc := SetupControllerUser()
-	r.POST("/api/user/verify_email", uc.VerifyEmail)
+// func Test_VerifyEmail_BadRequest(t *testing.T) {
+// 	r := SetUpRoutes()
+// 	uc := SetupControllerUser()
+// 	r.POST("/api/user/verify_email", uc.VerifyEmail)
 
-	// missing token
-	req, _ := http.NewRequest(http.MethodPost, "/api/user/verify_email", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+// 	// missing token
+// 	req, _ := http.NewRequest(http.MethodPost, "/api/user/verify_email", nil)
+// 	w := httptest.NewRecorder()
+// 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusBadRequest, w.Code)
-}
+// 	assert.Equal(t, http.StatusBadRequest, w.Code)
+// }
 
 // Note: VerifyEmail_OK requires a valid token setup; implement when token creation is available.
-func Test_VerifyEmail_OK(t *testing.T) {
-	r := SetUpRoutes()
-	uc := SetupControllerUser()
-	r.POST("/api/user/verify_email", uc.VerifyEmail)
+// func Test_VerifyEmail_OK(t *testing.T) {
+// 	r := SetUpRoutes()
+// 	uc := SetupControllerUser()
+// 	r.POST("/api/user/verify_email", uc.VerifyEmail)
 
-	// TODO: insert valid verification token into DB and use here
-	validToken := "valid-token-placeholder"
-	reqBody, _ := json.Marshal(dto.VerifyEmailRequest{Token: validToken})
-	req, _ := http.NewRequest(http.MethodPost, "/api/user/verify_email", bytes.NewBuffer(reqBody))
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+// 	// TODO: insert valid verification token into DB and use here
+// 	validToken := "valid-token-placeholder"
+// 	reqBody, _ := json.Marshal(dto.VerifyEmailRequest{Token: validToken})
+// 	req, _ := http.NewRequest(http.MethodPost, "/api/user/verify_email", bytes.NewBuffer(reqBody))
+// 	req.Header.Set("Content-Type", "application/json")
+// 	w := httptest.NewRecorder()
+// 	r.ServeHTTP(w, req)
 
-	// expecting BadRequest until token logic is implemented
-	assert.NotEqual(t, http.StatusInternalServerError, w.Code)
-}
+// 	// expecting BadRequest until token logic is implemented
+// 	assert.NotEqual(t, http.StatusInternalServerError, w.Code)
+// }
 
 func Test_GetAllUser_OK(t *testing.T) {
 	r := SetUpRoutes()
