@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fp_mbd/dto"
 	"fp_mbd/entity"
 
 	"gorm.io/gorm"
@@ -11,8 +10,8 @@ import (
 type (
 	MilestoneRepository interface {
 		Create(ctx context.Context, tx *gorm.DB, milestone entity.Milestone) (entity.Milestone, error)
-		GetMilestoneByProjectId(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.Milestone, error)
-		Update(ctx context.Context, tx *gorm.DB, milestoneReq dto.UpdateMilestoneRequest) (entity.Milestone, error)
+		GetMilestonesByProjectId(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.Milestone, error)
+		Update(ctx context.Context, tx *gorm.DB, milestone entity.Milestone) (entity.Milestone, error)
 		Delete(ctx context.Context, tx *gorm.DB, milestoneId uint) error
 	}
 
@@ -38,7 +37,7 @@ func (r *milestoneRepository) Create(ctx context.Context, tx *gorm.DB, milestone
 
 	return milestone, nil
 }
-func (r *milestoneRepository) GetMilestoneByProjectId(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.Milestone, error) {
+func (r *milestoneRepository) GetMilestonesByProjectId(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.Milestone, error) {
 	if tx == nil {
 		tx = r.db
 	}
@@ -50,7 +49,7 @@ func (r *milestoneRepository) GetMilestoneByProjectId(ctx context.Context, tx *g
 
 	return milestones, nil
 }
-func (r *milestoneRepository) Update(ctx context.Context, tx *gorm.DB, milestoneReq dto.UpdateMilestoneRequest) (entity.Milestone, error) {
+func (r *milestoneRepository) Update(ctx context.Context, tx *gorm.DB, milestone entity.Milestone) (entity.Milestone, error) {
 	if tx == nil {
 		tx = r.db
 	}

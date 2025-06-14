@@ -6,10 +6,11 @@ import (
 
 const (
 	// Failed
-	MESSAGE_FAILED_CREATE_MILESTONE    = "failed create milestone"
-	MESSAGEA_FAILED_GET_LIST_MILESTONE = "failed get list milestone"
-	MESSAGE_FAILED_UPDATE_MILESTONE    = "failed update milestone"
-	MESSAGE_FAILED_DELETE_MILESTONE    = "failed delete milestone"
+	MESSAGE_FAILED_CREATE_MILESTONE       = "failed create milestone"
+	MESSAGE_UNAUTHORIZED_CREATE_MILESTONE = "unauthorized create milestone"
+	MESSAGEA_FAILED_GET_LIST_MILESTONE    = "failed get list milestone"
+	MESSAGE_FAILED_UPDATE_MILESTONE       = "failed update milestone"
+	MESSAGE_FAILED_DELETE_MILESTONE       = "failed delete milestone"
 
 	// Success
 	MESSAGE_SUCCESS_CREATE_MILESTONE   = "success create milestone"
@@ -22,13 +23,14 @@ var (
 	ErrCreateMilestone  = errors.New("failed to create milestone")
 	ErrGetListMilestone = errors.New("failed to milestone id")
 	ErrUpdateMilestone  = errors.New("failed to update milestone")
-	ErrDeleteMilestone  = errors.New("failed to delete milestone")
+	// ErrUpdateMilestoneUnauthorized = errors.New("unauthorized update milestone")
+	ErrDeleteMilestone = errors.New("failed to delete milestone")
 )
 
 // belum implement
 type (
 	MilestoneCreateRequest struct {
-		ProjectID   string `json:"project_id" form:"project_id" binding:"required"`
+		ProjectID   uint   `json:"project_id" form:"project_id" binding:"required"`
 		UserID      string `json:"user_id" form:"user_id" binding:"required,min=2,max=15"`
 		Title       string `json:"title" form:"title" binding:"required,min=2,max=100"`
 		Description string `json:"description" form:"description" binding:"required,min=2,max=500"`
@@ -37,7 +39,7 @@ type (
 	}
 
 	MilestoneCreateResponse struct {
-		MilestoneID string `json:"milestone_id"`
+		MilestoneID uint   `json:"milestone_id"`
 		Title       string `json:"title"`
 		Description string `json:"description"`
 		DueDate     string `json:"due_date"`
@@ -45,7 +47,7 @@ type (
 	}
 
 	GetMilestoneByIdResponse struct {
-		MilestoneID string `json:"milestone_id"`
+		MilestoneID uint   `json:"milestone_id"`
 		Title       string `json:"title"`
 		Description string `json:"description"`
 		DueDate     string `json:"due_date"`
@@ -54,8 +56,8 @@ type (
 	}
 
 	MilestoneUpdateRequest struct {
-		MilestoneID string `json:"milestone_id" form:"milestone_id" binding:"required"`
-		ProjectID   string `json:"project_id" form:"project_id" binding:"required"`
+		MilestoneID uint   `json:"milestone_id" form:"milestone_id" binding:"required"`
+		ProjectID   uint   `json:"project_id" form:"project_id" binding:"required"`
 		Title       string `json:"title" form:"title" binding:"omitempty,min=2,max=100"`
 		Description string `json:"description" form:"description" binding:"omitempty,min=2,max=500"`
 		DueDate     string `json:"due_date" form:"due_date" binding:"omitempty,datetime=2006-01-02"`
@@ -63,7 +65,7 @@ type (
 	}
 
 	MilestoneUpdateResponse struct {
-		MilestoneID string `json:"milestone_id"`
+		MilestoneID uint   `json:"milestone_id"`
 		Title       string `json:"title"`
 		Description string `json:"description"`
 		Status      string `json:"status"`
@@ -71,7 +73,7 @@ type (
 	}
 
 	MilestoneDeleteResponse struct {
-		MilestoneID string `json:"milestone_id"`
+		MilestoneID uint   `json:"milestone_id"`
 		Title       string `json:"title"`
 		Description string `json:"description"`
 		Status      string `json:"status"`
