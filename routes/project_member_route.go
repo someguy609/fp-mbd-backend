@@ -18,7 +18,7 @@ func ProjectMember(route *gin.Engine, injector *do.Injector) {
 	{
 		routes.POST("", projectMemberController.Create)
 		routes.GET("", projectMemberController.GetProjectMembers)
-		routes.GET("/:projectMemberId", projectMemberController.GetProjectMembersByProjecMemberId)
+		routes.GET("/:projectMemberId", projectMemberController.GetProjectMemberByProjecMemberId)
 		routes.PATCH("/:projectMemberId", middleware.Authenticate(jwtService), projectMemberController.Update)
 		routes.DELETE("/:projectMemberId", middleware.Authenticate(jwtService), projectMemberController.Delete)
 	}
