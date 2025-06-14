@@ -16,7 +16,7 @@ type (
 		Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string) (dto.MilestoneCreateResponse, error)
 		GetMilestonesByProjectId(ctx context.Context, projectId uint) ([]dto.GetMilestoneByIdResponse, error)
 		Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string) (dto.MilestoneUpdateResponse, error)
-		Delete(ctx context.Context, milestoneId uint, projectId uint, userId string) error
+		Delete(ctx context.Context, milestoneId uint, userId string) error
 	}
 	milestoneService struct {
 		milestoneRepo     repository.MilestoneRepository
@@ -157,16 +157,24 @@ func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRe
 	}
 	return milestoneResponse, nil
 }
-func (s *milestoneService) Delete(ctx context.Context, milestoneId uint, projectId uint, userId string) error {
+func (s *milestoneService) Delete(ctx context.Context, milestoneId uint, userId string) error {
 	user_id, err := s.userRepo.GetUserById(ctx, s.db, userId)
+	if err != nil {
+		return err
+	}
+	projectId, err := s.milestoneRepo.GetProjectIdByMilestoneId(ctx, nil, milestoneId)
 	if err != nil {
 		return err
 	}
 
 	user_role := user_id.Role
-	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, s.db, userId, projectId)
 
-	if user_role != "dosen" || is_project_member == false {
+	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, s.db, userId, projectId)
+	if err != nil {
+		return err
+	}
+
+	if user_role != "dosen" || !is_project_member {
 		return dto.ErrUpdateMilestone
 	}
 

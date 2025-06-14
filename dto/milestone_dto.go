@@ -8,7 +8,7 @@ const (
 	// Failed
 	MESSAGE_FAILED_CREATE_MILESTONE       = "failed create milestone"
 	MESSAGE_UNAUTHORIZED_CREATE_MILESTONE = "unauthorized create milestone"
-	MESSAGEA_FAILED_GET_LIST_MILESTONE    = "failed get list milestone"
+	MESSAGE_FAILED_GET_LIST_MILESTONE     = "failed get list milestone"
 	MESSAGE_FAILED_UPDATE_MILESTONE       = "failed update milestone"
 	MESSAGE_FAILED_DELETE_MILESTONE       = "failed delete milestone"
 

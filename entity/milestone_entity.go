@@ -9,7 +9,7 @@ type Milestone struct {
 	DueDate     time.Time `gorm:"type:date;not null" json:"due_date"`
 	Status      string    `gorm:"type:varchar(100);not null" json:"status"`
 	CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	ProjectID   uint      `json:"project_id"`
+	ProjectID   uint      `gorm:"type:varchar(100);not null" json:"project_id"`
 
 	Project Project `gorm:"foreignKey:ProjectID" json:"project,omitempty"`
 }

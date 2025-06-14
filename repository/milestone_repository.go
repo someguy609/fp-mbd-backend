@@ -10,6 +10,7 @@ import (
 type (
 	MilestoneRepository interface {
 		Create(ctx context.Context, tx *gorm.DB, milestone entity.Milestone) (entity.Milestone, error)
+		GetProjectIdByMilestoneId(ctx context.Context, tx *gorm.DB, milestoneId uint) (uint, error)
 		GetMilestonesByProjectId(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.Milestone, error)
 		Update(ctx context.Context, tx *gorm.DB, milestone entity.Milestone) (entity.Milestone, error)
 		Delete(ctx context.Context, tx *gorm.DB, milestoneId uint) error
@@ -70,4 +71,17 @@ func (r *milestoneRepository) Delete(ctx context.Context, tx *gorm.DB, milestone
 	}
 
 	return nil
+}
+
+func (r *milestoneRepository) GetProjectIdByMilestoneId(ctx context.Context, tx *gorm.DB, milestoneId uint) (uint, error) {
+	if tx == nil {
+		tx = r.db
+	}
+
+	var milestone entity.Milestone
+	if err := tx.WithContext(ctx).Select("project_id").Where("milestone_id = ?", milestoneId).First(&milestone).Error; err != nil {
+		return 0, err
+	}
+
+	return milestone.ProjectID, nil
 }
