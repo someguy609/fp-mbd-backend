@@ -45,10 +45,10 @@ func NewMilestoneService(
 
 func (s *milestoneService) Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string) (dto.MilestoneCreateResponse, error) {
 
-	user_id, err := s.userRepo.GetUserById(ctx, s.db, userId)
+	user, err := s.userRepo.GetUserById(ctx, nil, userId)
 
-	user_role := user_id.Role
-	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, s.db, userId, req.ProjectID)
+	user_role := user.Role
+	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, req.ProjectID)
 
 	if user_role != "dosen" || is_project_member == false {
 		return dto.MilestoneCreateResponse{}, dto.ErrCreateMilestone
@@ -109,13 +109,13 @@ func (s *milestoneService) GetMilestonesByProjectId(ctx context.Context, project
 
 func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string) (dto.MilestoneUpdateResponse, error) {
 
-	user_id, err := s.userRepo.GetUserById(ctx, s.db, userId)
+	user_id, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
 		return dto.MilestoneUpdateResponse{}, err
 	}
 
 	user_role := user_id.Role
-	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, s.db, userId, req.ProjectID)
+	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, req.ProjectID)
 
 	if user_role != "admin" || is_project_member == false {
 		return dto.MilestoneUpdateResponse{}, dto.ErrUpdateMilestone
@@ -158,7 +158,7 @@ func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRe
 	return milestoneResponse, nil
 }
 func (s *milestoneService) Delete(ctx context.Context, milestoneId uint, userId string) error {
-	user_id, err := s.userRepo.GetUserById(ctx, s.db, userId)
+	user_id, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func (s *milestoneService) Delete(ctx context.Context, milestoneId uint, userId 
 
 	user_role := user_id.Role
 
-	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, s.db, userId, projectId)
+	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, projectId)
 	if err != nil {
 		return err
 	}

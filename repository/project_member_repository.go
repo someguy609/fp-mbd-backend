@@ -10,11 +10,10 @@ import (
 type (
 	ProjectMemberRepository interface {
 		Create(ctx context.Context, tx *gorm.DB, projectMember entity.ProjectMember) (entity.ProjectMember, error)
-		GetProjectMembersByProjectId(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.ProjectMember, error)
-		GetProjectMemberByUserId(ctx context.Context, tx *gorm.DB, userId string) ([]entity.ProjectMember, error)
+		GetProjectMembers(ctx context.Context, tx *gorm.DB) ([]entity.ProjectMember, error)
+		GetProjectMemberByProjectMemberId(ctx context.Context, tx *gorm.DB, projectMemberId uint) (entity.ProjectMember, error)
 		Update(ctx context.Context, tx *gorm.DB, projectMember entity.ProjectMember) (entity.ProjectMember, error)
 		Delete(ctx context.Context, tx *gorm.DB, projectMemberId uint) error
-		GetProjectMemberById(ctx context.Context, tx *gorm.DB, projectMemberId uint) (entity.ProjectMember, error)
 		IsUserInProject(ctx context.Context, tx *gorm.DB, userId string, projectId uint) (bool, error)
 	}
 	projectMemberRepository struct {
@@ -39,30 +38,32 @@ func (r *projectMemberRepository) Create(ctx context.Context, tx *gorm.DB, proje
 
 	return projectMember, nil
 }
-func (r *projectMemberRepository) GetProjectMembersByProjectId(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.ProjectMember, error) {
+func (r *projectMemberRepository) GetProjectMembers(ctx context.Context, tx *gorm.DB) ([]entity.ProjectMember, error) {
 	if tx == nil {
 		tx = r.db
 	}
 
 	var projectMembers []entity.ProjectMember
-	if err := tx.WithContext(ctx).Where("projects_project_id = ?", projectId).Find(&projectMembers).Error; err != nil {
+	if err := tx.WithContext(ctx).Find(&projectMembers).Error; err != nil {
 		return nil, err
 	}
 
 	return projectMembers, nil
 }
-func (r *projectMemberRepository) GetProjectMemberByUserId(ctx context.Context, tx *gorm.DB, userId string) ([]entity.ProjectMember, error) {
+
+func (r *projectMemberRepository) GetProjectMemberByProjectMemberId(ctx context.Context, tx *gorm.DB, projectMemberId uint) (entity.ProjectMember, error) {
 	if tx == nil {
 		tx = r.db
 	}
 
-	var projectMembers []entity.ProjectMember
-	if err := tx.WithContext(ctx).Where("users_user_id = ?", userId).Find(&projectMembers).Error; err != nil {
-		return nil, err
+	var projectMember entity.ProjectMember
+	if err := tx.WithContext(ctx).Where("project_member_id = ?", projectMemberId).Take(&projectMember).Error; err != nil {
+		return entity.ProjectMember{}, err
 	}
 
-	return projectMembers, nil
+	return projectMember, nil
 }
+
 func (r *projectMemberRepository) Update(ctx context.Context, tx *gorm.DB, projectMember entity.ProjectMember) (entity.ProjectMember, error) {
 	if tx == nil {
 		tx = r.db
@@ -85,22 +86,10 @@ func (r *projectMemberRepository) Delete(ctx context.Context, tx *gorm.DB, proje
 
 	return nil
 }
-func (r *projectMemberRepository) GetProjectMemberById(ctx context.Context, tx *gorm.DB, projectMemberId uint) (entity.ProjectMember, error) {
-	if tx == nil {
-		tx = r.db
-	}
-
-	var projectMember entity.ProjectMember
-	if err := tx.WithContext(ctx).Where("project_member_id = ?", projectMemberId).Take(&projectMember).Error; err != nil {
-		return entity.ProjectMember{}, err
-	}
-
-	return projectMember, nil
-}
 func (r *projectMemberRepository) IsUserInProject(ctx context.Context, tx *gorm.DB, userId string, projectId uint) (bool, error) {
-	if tx == nil {
-		tx = r.db
-	}
+	// if tx == nil {
+	// 	tx = r.db
+	// }
 
 	var count int64
 	err := r.db.WithContext(ctx).Model(&entity.ProjectMember{}).
