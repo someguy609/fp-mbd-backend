@@ -21,6 +21,7 @@ type (
 		CheckEmail(ctx context.Context, tx *gorm.DB, email string) (entity.User, bool, error)
 		Update(ctx context.Context, tx *gorm.DB, user entity.User) (entity.User, error)
 		Delete(ctx context.Context, tx *gorm.DB, userId string) error
+		GetUserRoleById(ctx context.Context, tx *gorm.DB, userId string) (string, error)
 	}
 
 	userRepository struct {
@@ -147,4 +148,17 @@ func (r *userRepository) Delete(ctx context.Context, tx *gorm.DB, userId string)
 	}
 
 	return nil
+}
+
+func (r *userRepository) GetUserRoleById(ctx context.Context, tx *gorm.DB, userId string) (string, error) {
+	if tx == nil {
+		tx = r.db
+	}
+
+	var user entity.User
+	if err := tx.WithContext(ctx).Select("role").Where("id = ?", userId).Take(&user).Error; err != nil {
+		return "", err
+	}
+
+	return user.Role, nil
 }

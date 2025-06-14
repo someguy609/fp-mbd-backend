@@ -10,10 +10,10 @@ import (
 
 type (
 	MilestoneService interface {
-		Create(ctx context.Context, req dto.MilestoneCreateRequest) (dto.MilestoneResponse, error)
-		GetMilestoneByProjectId(ctx context.Context, projectId string) (dto.MilestonePaginationResponse, error)
-		Update(ctx context.Context, req dto.MilestoneUpdateRequest, milestoneId string) (dto.MilestoneResponse, error)
-		Delete(ctx context.Context, milestoneId uint) error
+		Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string) (dto.MilestoneResponse, error)
+		GetMilestoneByProjectId(ctx context.Context, projectId uint) (dto.MilestonePaginationResponse, error)
+		Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string) (dto.MilestoneResponse, error)
+		Delete(ctx context.Context, milestoneId uint, userId string) error
 	}
 	milestoneService struct {
 		milestoneRepo repository.MilestoneRepository
@@ -34,7 +34,8 @@ func NewMilestoneService(
 	}
 }
 
-func (s *milestoneService) Create(ctx context.Context, req dto.MilestoneCreateRequest) (dto.MilestoneResponse, error) {
+func (s *milestoneService) Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string) (dto.MilestoneResponse, error) {
+
 	milestone, err := s.milestoneRepo.Create(ctx, req)
 	if err != nil {
 		return dto.MilestoneResponse{}, err
@@ -51,6 +52,7 @@ func (s *milestoneService) GetMilestoneByProjectId(ctx context.Context, projectI
 	return dto.ToMilestonePaginationResponse(milestones), nil
 }
 func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRequest, milestoneId string) (dto.MilestoneResponse, error) {
+
 	milestone, err := s.milestoneRepo.Update(ctx, req, milestoneId)
 	if err != nil {
 		return dto.MilestoneResponse{}, err

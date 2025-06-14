@@ -28,42 +28,53 @@ var (
 // belum implement
 type (
 	MilestoneCreateRequest struct {
+		ProjectID   string `json:"project_id" form:"project_id" binding:"required"`
 		UserID      string `json:"user_id" form:"user_id" binding:"required,min=2,max=15"`
-		Name        string `json:"name" form:"name" binding:"required,min=2,max=100"`
-		Email       string `json:"email" form:"email" binding:"required,email"`
-		Password    string `json:"password" form:"password" binding:"required,min=8"`
-		ContactInfo string `json:"contact_info" form:"contact_info" binding:"omitempty,min=8,max=100"`
+		Title       string `json:"title" form:"title" binding:"required,min=2,max=100"`
+		Description string `json:"description" form:"description" binding:"required,min=2,max=500"`
+		DueDate     string `json:"due_date" form:"due_date" binding:"required,datetime=2006-01-02"`
+		Status      string `json:"status" form:"status" binding:"required,oneof=in_progress completed"`
 	}
 
-	CreateMilestoneResponse struct {
-		UserID      string `json:"user_id"`
-		Name        string `json:"name"`
-		Email       string `json:"email"`
-		ContactInfo string `json:"contact_info"`
-		Role        string `json:"role"`
+	MilestoneCreateResponse struct {
+		MilestoneID string `json:"milestone_id"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		DueDate     string `json:"due_date"`
+		Status      string `json:"status"`
 	}
 
 	GetMilestoneByIdResponse struct {
-	}
-
-	UpdateMilestoneRequest struct {
-	}
-
-	UpdateMilestoneResponse struct {
 		MilestoneID string `json:"milestone_id"`
-		Name        string `json:"name"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		DueDate     string `json:"due_date"`
+		Status      string `json:"status"`
+		CreatedAt   string `json:"created_at"`
+	}
+
+	MilestoneUpdateRequest struct {
+		MilestoneID string `json:"milestone_id" form:"milestone_id" binding:"required"`
+		ProjectID   string `json:"project_id" form:"project_id" binding:"required"`
+		Title       string `json:"title" form:"title" binding:"omitempty,min=2,max=100"`
+		Description string `json:"description" form:"description" binding:"omitempty,min=2,max=500"`
+		DueDate     string `json:"due_date" form:"due_date" binding:"omitempty,datetime=2006-01-02"`
+		Status      string `json:"status" form:"status" binding:"omitempty,oneof=in_progress completed"`
+	}
+
+	MilestoneUpdateResponse struct {
+		MilestoneID string `json:"milestone_id"`
+		Title       string `json:"title"`
 		Description string `json:"description"`
 		Status      string `json:"status"`
-		StartDate   string `json:"start_date"`
-		EndDate     string `json:"end_date"`
+		DueDate     string `json:"due_date"`
 	}
 
-	DeleteMilestoneResponse struct {
+	MilestoneDeleteResponse struct {
 		MilestoneID string `json:"milestone_id"`
-		Name        string `json:"name"`
+		Title       string `json:"title"`
 		Description string `json:"description"`
 		Status      string `json:"status"`
-		StartDate   string `json:"start_date"`
-		EndDate     string `json:"end_date"`
+		DueDate     string `json:"due_date"`
 	}
 )
