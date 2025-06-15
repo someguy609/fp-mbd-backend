@@ -23,11 +23,7 @@ func Project(route *gin.Engine, injector *do.Injector) {
 		routes.GET("/:id", middleware.Authenticate(jwtService), projectController.GetProject)
 		routes.PATCH("/:id", middleware.Authenticate(jwtService), middleware.RequireRoles("dosen"), projectController.Update)
 		routes.DELETE("/:id", middleware.Authenticate(jwtService), middleware.RequireRoles("dosen"), projectController.Delete)
-	
-		documentRoutes := routes.Group("/:projectId/documents")
-		{
-			documentRoutes.POST("", middleware.Authenticate(jwtService), projectController.UploadDocument)
-			documentRoutes.GET("", middleware.Authenticate(jwtService), projectController.GetDocument)
-		}
+		routes.POST("/:id/documents", middleware.Authenticate(jwtService), projectController.UploadDocument)
+		routes.GET("/:id/documents", middleware.Authenticate(jwtService), projectController.GetDocument)
 	}
 }
