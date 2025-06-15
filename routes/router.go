@@ -8,4 +8,5 @@ import (
 func RegisterRoutes(server *gin.Engine, injector *do.Injector) {
 	User(server, injector)
 	Project(server, injector)
+	Document(server, injector)
 }
