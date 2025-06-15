@@ -48,8 +48,39 @@ func Authenticate(jwtService service.JWTService) gin.HandlerFunc {
 			return
 		}
 
+		role, err := jwtService.GetRoleByToken(authHeader)
+
+		if err != nil {
+			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_PROSES_REQUEST, err.Error(), nil)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
+			return
+		}
+
 		ctx.Set("token", authHeader)
 		ctx.Set("user_id", userId)
+		ctx.Set("role", role)
+		ctx.Next()
+	}
+}
+
+func RequireRoles(allowedRoles ...string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		role := ctx.MustGet("role").(string)
+
+		allowed := false
+		for _, allowedRole := range allowedRoles {
+			if role == allowedRole {
+				allowed = true
+				break
+			}
+		}
+
+		if !allowed {
+			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_PROSES_REQUEST, dto.MESSAGE_FAILED_DENIED_ACCESS, nil)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
+			return
+		}
+
 		ctx.Next()
 	}
 }
