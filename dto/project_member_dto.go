@@ -41,6 +41,7 @@ type (
 		ProjectID       uint   `json:"project_id"`
 		RoleProject     string `json:"role_project"`
 		JoinedAt        string `json:"joined_at"`
+		IsActive        bool   `json:"is_active"`
 	}
 	ProjectMemberGetResponse struct {
 		ProjectMemberID uint   `json:"project_member_id"`
@@ -48,6 +49,7 @@ type (
 		ProjectID       uint   `json:"project_id"`
 		RoleProject     string `json:"role_project"`
 		JoinedAt        string `json:"joined_at"`
+		IsActive        bool   `json:"is_active"`
 	}
 	ProjectMemberUpdateRequest struct {
 		RoleProject string `json:"role_project" form:"role_project" binding:"required"`
@@ -58,6 +60,7 @@ type (
 		ProjectID       uint   `json:"project_id"`
 		RoleProject     string `json:"role_project"`
 		JoinedAt        string `json:"joined_at"`
+		IsActive        bool   `json:"is_active"`
 	}
 	ProjectMemberDeleteResponse struct {
 		ProjectMemberID uint   `json:"project_member_id"`
@@ -65,5 +68,6 @@ type (
 		ProjectID       uint   `json:"project_id"`
 		RoleProject     string `json:"role_project"`
 		JoinedAt        string `json:"joined_at"`
+		IsActive        bool   `json:"is_active"`
 	}
 )

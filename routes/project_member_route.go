@@ -20,7 +20,7 @@ func ProjectMember(route *gin.Engine, injector *do.Injector) {
 		routes.GET("/members", projectMemberController.GetProjectMembers)
 		routes.GET("/join-request", projectMemberController.GetJoinRequests)
 		// routes.GET("/:projectMemberId", projectMemberController.GetProjectMemberByProjecMemberId)
-		routes.POST("/join-request/:projectMemberId/approve", projectMemberController.ApproveJoinRequest)
+		routes.PATCH("/join-request/:projectMemberId/approve", projectMemberController.ApproveJoinRequest)
 		// routes.PATCH("/:projectMemberId", middleware.Authenticate(jwtService), projectMemberController.Update)
 		routes.DELETE("/members/:projectMemberId", middleware.Authenticate(jwtService), projectMemberController.Delete)
 	}
