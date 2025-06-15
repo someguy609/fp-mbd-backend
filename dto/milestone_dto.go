@@ -30,8 +30,6 @@ var (
 // belum implement
 type (
 	MilestoneCreateRequest struct {
-		ProjectID   uint   `json:"project_id" form:"project_id" binding:"required"`
-		UserID      string `json:"user_id" form:"user_id" binding:"required,min=2,max=15"`
 		Title       string `json:"title" form:"title" binding:"required,min=2,max=100"`
 		Description string `json:"description" form:"description" binding:"required,min=2,max=500"`
 		DueDate     string `json:"due_date" form:"due_date" binding:"required,datetime=2006-01-02"`
@@ -56,8 +54,8 @@ type (
 	}
 
 	MilestoneUpdateRequest struct {
-		MilestoneID uint   `json:"milestone_id" form:"milestone_id" binding:"required"`
-		ProjectID   uint   `json:"project_id" form:"project_id" binding:"required"`
+		// MilestoneID uint   `json:"milestone_id" form:"milestone_id" binding:"required"`
+		// ProjectID   uint   `json:"project_id" form:"project_id" binding:"required"`
 		Title       string `json:"title" form:"title" binding:"omitempty,min=2,max=100"`
 		Description string `json:"description" form:"description" binding:"omitempty,min=2,max=500"`
 		DueDate     string `json:"due_date" form:"due_date" binding:"omitempty,datetime=2006-01-02"`

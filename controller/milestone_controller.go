@@ -37,8 +37,26 @@ func (c *milestoneController) Create(ctx *gin.Context) {
 	}
 
 	user_id := ctx.GetString("user_id")
+	if user_id == "" {
+		res := utils.BuildResponseFailed(dto.MESSAGE_UNAUTHORIZED_CREATE_MILESTONE, "User ID is required", nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
+		return
+	}
+	project_id := ctx.Param("project_id")
+	if project_id == "" {
+		res := utils.BuildResponseFailed("Project ID is required", "Project ID cannot be empty", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
 
-	result, err := c.milestoneService.Create(ctx.Request.Context(), req, user_id)
+	project_id_uint, err := utils.StringToUint(project_id)
+	if err != nil {
+		res := utils.BuildResponseFailed("Invalid Project ID", err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := c.milestoneService.Create(ctx.Request.Context(), req, user_id, project_id_uint)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CREATE_MILESTONE, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)

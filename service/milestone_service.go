@@ -13,7 +13,7 @@ import (
 
 type (
 	MilestoneService interface {
-		Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string) (dto.MilestoneCreateResponse, error)
+		Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string, projectId uint) (dto.MilestoneCreateResponse, error)
 		GetMilestonesByProjectId(ctx context.Context, projectId uint) ([]dto.GetMilestoneByIdResponse, error)
 		Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string) (dto.MilestoneUpdateResponse, error)
 		Delete(ctx context.Context, milestoneId uint, userId string) error
@@ -43,12 +43,12 @@ func NewMilestoneService(
 	}
 }
 
-func (s *milestoneService) Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string) (dto.MilestoneCreateResponse, error) {
+func (s *milestoneService) Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string, projectId uint) (dto.MilestoneCreateResponse, error) {
 
 	user, err := s.userRepo.GetUserById(ctx, nil, userId)
 
 	user_role := user.Role
-	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, req.ProjectID)
+	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, projectId)
 
 	if user_role != "dosen" || is_project_member == false {
 		return dto.MilestoneCreateResponse{}, dto.ErrCreateMilestone
@@ -65,7 +65,7 @@ func (s *milestoneService) Create(ctx context.Context, req dto.MilestoneCreateRe
 		Description: req.Description,
 		DueDate:     parsedDueDate,
 		Status:      req.Status,
-		ProjectID:   req.ProjectID,
+		ProjectID:   projectId,
 	}
 
 	milestone_repo_res, err := s.milestoneRepo.Create(ctx, nil, milestone)
