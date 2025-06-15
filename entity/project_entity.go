@@ -21,8 +21,8 @@ type Project struct {
 	Categories  string        `gorm:"type:varchar(100)" json:"categories"` // array of strings ?
 	CreatedAt   time.Time     `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 
-	ProjectMembers []ProjectMember `gorm:"foreignKey:ProjectsProjectID" json:"project_members,omitempty"`
-	Milestones     []Milestone     `gorm:"foreignKey:ProjectsProjectID" json:"milestones,omitempty"`
+	ProjectMembers []ProjectMember `gorm:"foreignKey:ProjectID" json:"project_members,omitempty"`
+	Milestones     []Milestone     `gorm:"foreignKey:ProjectID" json:"milestones,omitempty"`
 	Documents      []Document      `gorm:"foreignKey:ProjectsProjectID" json:"documents,omitempty"`
 }
 
