@@ -32,7 +32,7 @@ func (c *milestoneController) Create(ctx *gin.Context) {
 	var req dto.MilestoneCreateRequest
 	if err := ctx.ShouldBind(&req); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CREATE_MILESTONE, err.Error(), nil)
-		ctx.AbortWithStatusJSON(400, res)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
 
