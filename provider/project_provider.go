@@ -5,22 +5,26 @@ import (
 	"fp_mbd/repository"
 	"fp_mbd/service"
 
+	"github.com/minio/minio-go/v7"
 	"github.com/samber/do"
 	"gorm.io/gorm"
 )
 
-func ProvideProjectDependencies(injector *do.Injector, db *gorm.DB) {
+func ProvideProjectDependencies(injector *do.Injector, db *gorm.DB, minioClient *minio.Client) {
 	// Repository
 	userRepository := repository.NewUserRepository(db)
 	projectRepository := repository.NewProjectRepository(db)
+	documentRepository := repository.NewDocumentRepository(db)
+	minioRepository := repository.NewMinioRepository(minioClient, "main")
 
 	// Service
 	projectService := service.NewProjectService(userRepository, projectRepository, db)
+	documentService := service.NewDocumentService(documentRepository, minioRepository, db)
 
 	// Controller
 	do.Provide(
 		injector, func(i *do.Injector) (controller.ProjectController, error) {
-			return controller.NewProjectController(projectService), nil
+			return controller.NewProjectController(projectService, documentService), nil
 		},
 	)
 }
