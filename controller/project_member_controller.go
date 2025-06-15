@@ -51,7 +51,17 @@ func (c *projectMemberController) Create(ctx *gin.Context) {
 }
 
 func (c *projectMemberController) GetProjectMembers(ctx *gin.Context) {
-	result, err := c.projectMemberService.GetProjectMembers(ctx.Request.Context())
+	projectId := ctx.Param("project_id")
+	if projectId == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Project ID is required"})
+		return
+	}
+	projectIdUint, err := utils.StringToUint(projectId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Project ID"})
+		return
+	}
+	result, err := c.projectMemberService.GetProjectMembers(ctx.Request.Context(), projectIdUint)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get project members"})
 		return

@@ -129,7 +129,7 @@ func (c *milestoneController) Update(ctx *gin.Context) {
 }
 
 func (c *milestoneController) Delete(ctx *gin.Context) {
-	milestoneId := ctx.Query("milestone_id")
+	milestoneId := ctx.Param("milestone_id")
 	if milestoneId == "" {
 		res := utils.BuildResponseFailed("Milestone ID is required", "Milestone ID cannot be empty", nil)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
@@ -141,7 +141,12 @@ func (c *milestoneController) Delete(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
-	userId := ctx.MustGet("user_id").(string)
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		res := utils.BuildResponseFailed("User ID is required", "User ID cannot be empty", nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
+		return
+	}
 
 	if err := c.milestoneService.Delete(ctx.Request.Context(), milestoneIdUint, userId); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MILESTONE, err.Error(), nil)

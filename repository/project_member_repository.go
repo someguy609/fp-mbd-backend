@@ -10,7 +10,7 @@ import (
 type (
 	ProjectMemberRepository interface {
 		Create(ctx context.Context, tx *gorm.DB, projectMember entity.ProjectMember) (entity.ProjectMember, error)
-		GetProjectMembers(ctx context.Context, tx *gorm.DB) ([]entity.ProjectMember, error)
+		GetProjectMembers(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.ProjectMember, error)
 		GetProjectMemberByProjectMemberId(ctx context.Context, tx *gorm.DB, projectMemberId uint) (entity.ProjectMember, error)
 		Update(ctx context.Context, tx *gorm.DB, projectMember entity.ProjectMember) (entity.ProjectMember, error)
 		Delete(ctx context.Context, tx *gorm.DB, projectMemberId uint) error
@@ -38,13 +38,13 @@ func (r *projectMemberRepository) Create(ctx context.Context, tx *gorm.DB, proje
 
 	return projectMember, nil
 }
-func (r *projectMemberRepository) GetProjectMembers(ctx context.Context, tx *gorm.DB) ([]entity.ProjectMember, error) {
+func (r *projectMemberRepository) GetProjectMembers(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.ProjectMember, error) {
 	if tx == nil {
 		tx = r.db
 	}
 
 	var projectMembers []entity.ProjectMember
-	if err := tx.WithContext(ctx).Find(&projectMembers).Error; err != nil {
+	if err := tx.WithContext(ctx).Where("projects_project_id = ?", projectId).Find(&projectMembers).Error; err != nil {
 		return nil, err
 	}
 

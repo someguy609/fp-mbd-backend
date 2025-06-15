@@ -12,7 +12,7 @@ import (
 type (
 	ProjectMemberService interface {
 		Create(ctx context.Context, req dto.ProjectMemberCreateRequest, userId string) (dto.ProjectMemberCreateResponse, error)
-		GetProjectMembers(ctx context.Context) ([]dto.ProjectMemberGetResponse, error)
+		GetProjectMembers(ctx context.Context, projectId uint) ([]dto.ProjectMemberGetResponse, error)
 		GetProjectMemberByProjectMemberId(ctx context.Context, projectMemberId uint) (dto.ProjectMemberGetResponse, error)
 		Update(ctx context.Context, req dto.ProjectMemberUpdateRequest, projectMemberId uint, userId string) (dto.ProjectMemberUpdateResponse, error)
 		Delete(ctx context.Context, projectMemberId uint) error
@@ -64,8 +64,8 @@ func (s *projectMemberService) Create(ctx context.Context, req dto.ProjectMember
 	return projectMemberResponse, nil
 
 }
-func (s *projectMemberService) GetProjectMembers(ctx context.Context) ([]dto.ProjectMemberGetResponse, error) {
-	projectMembers, err := s.projectMemberRepo.GetProjectMembers(ctx, nil)
+func (s *projectMemberService) GetProjectMembers(ctx context.Context, projectId uint) ([]dto.ProjectMemberGetResponse, error) {
+	projectMembers, err := s.projectMemberRepo.GetProjectMembers(ctx, nil, projectId)
 	if err != nil {
 		return nil, err
 	}
