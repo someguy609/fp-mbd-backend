@@ -61,7 +61,7 @@ func (r *documentRepository) GetAllDocumentWithPagination(
 
 	query := tx.WithContext(ctx).Model(&entity.Document{})
 	if req.Search != "" {
-		query = query.Where("name LIKE ?", "%"+req.Search+"%")
+		query = query.Where("title LIKE ?", "%"+req.Search+"%")
 	}
 
 	if err := query.Count(&count).Error; err != nil {
