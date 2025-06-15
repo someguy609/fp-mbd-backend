@@ -227,29 +227,29 @@ func (s *userService) Verify(ctx context.Context, req dto.UserLoginRequest) (dto
 
 	accessToken := s.jwtService.GenerateAccessToken(user.UserID, user.Role)
 
-	refreshTokenString, expiresAt := s.jwtService.GenerateRefreshToken()
+	// refreshTokenString, expiresAt := s.jwtService.GenerateRefreshToken()
 
-	hashedToken, err := helpers.HashPassword(refreshTokenString)
-	if err != nil {
-		tx.Rollback()
-		return dto.TokenResponse{}, err
-	}
+	// hashedToken, err := helpers.HashPassword(refreshTokenString)
+	// if err != nil {
+	// 	tx.Rollback()
+	// 	return dto.TokenResponse{}, err
+	// }
 
-	if err := s.refreshTokenRepo.DeleteByUserID(ctx, tx, user.UserID); err != nil {
-		tx.Rollback()
-		return dto.TokenResponse{}, err
-	}
+	// if err := s.refreshTokenRepo.DeleteByUserID(ctx, tx, user.UserID); err != nil {
+	// 	tx.Rollback()
+	// 	return dto.TokenResponse{}, err
+	// }
 
-	refreshToken := entity.RefreshToken{
-		UserID:    user.UserID,
-		Token:     hashedToken,
-		ExpiresAt: expiresAt,
-	}
+	// refreshToken := entity.RefreshToken{
+	// 	UserID:    user.UserID,
+	// 	Token:     hashedToken,
+	// 	ExpiresAt: expiresAt,
+	// }
 
-	if _, err := s.refreshTokenRepo.Create(ctx, tx, refreshToken); err != nil {
-		tx.Rollback()
-		return dto.TokenResponse{}, err
-	}
+	// if _, err := s.refreshTokenRepo.Create(ctx, tx, refreshToken); err != nil {
+	// 	tx.Rollback()
+	// 	return dto.TokenResponse{}, err
+	// }
 
 	if err := tx.Commit().Error; err != nil {
 		return dto.TokenResponse{}, err
@@ -257,7 +257,7 @@ func (s *userService) Verify(ctx context.Context, req dto.UserLoginRequest) (dto
 
 	return dto.TokenResponse{
 		AccessToken:  accessToken,
-		RefreshToken: refreshTokenString,
+		// RefreshToken: "nonelmao",
 		Role:         user.Role,
 	}, nil
 }
