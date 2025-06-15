@@ -35,8 +35,8 @@ var (
 type (
 	UploadDocumentRequest struct {
 		Title     string                `json:"title" form:"title" binding:"required,min=2,max=100"`
-		File      *multipart.FileHeader `json:"file" binding:"required"`
-		ProjectID uint                  `json:"project_id" binding:"required"`
+		File      *multipart.FileHeader `json:"file" form:"file" binding:"required"`
+		ProjectID uint                  `json:"project_id" form:"project_id" binding:"required"`
 		// DocumentType    string `json:"document_type" form:"document_type" binding:"required,min=8"` // manual or automated ???
 	}
 
@@ -57,9 +57,9 @@ type (
 	}
 
 	DocumentUpdateRequest struct {
-		DocumentID uint                  `json:"document_id"`
+		DocumentID uint                  `json:"document_id" form:"document_id"`
 		Title      string                `json:"title" form:"title" binding:"omitempty,min=2,max=100"`
-		File       *multipart.FileHeader `json:"file" binding:"omitempty"`
+		File       *multipart.FileHeader `json:"file" form:"file" binding:"omitempty"`
 	}
 
 	DocumentUpdateResponse struct {
