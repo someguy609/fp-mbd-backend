@@ -15,7 +15,7 @@ type (
 	MilestoneService interface {
 		Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string, projectId uint) (dto.MilestoneCreateResponse, error)
 		GetMilestonesByProjectId(ctx context.Context, projectId uint) ([]dto.GetMilestoneByIdResponse, error)
-		Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string) (dto.MilestoneUpdateResponse, error)
+		Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string, milestoneId uint) (dto.MilestoneUpdateResponse, error)
 		Delete(ctx context.Context, milestoneId uint, userId string) error
 	}
 	milestoneService struct {
@@ -107,15 +107,20 @@ func (s *milestoneService) GetMilestonesByProjectId(ctx context.Context, project
 	return milestoneResponses, nil
 }
 
-func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string) (dto.MilestoneUpdateResponse, error) {
+func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string, milestoneId uint) (dto.MilestoneUpdateResponse, error) {
 
 	user_id, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
 		return dto.MilestoneUpdateResponse{}, err
 	}
 
+	projectId, err := s.milestoneRepo.GetProjectIdByMilestoneId(ctx, nil, milestoneId)
+	if err != nil {
+		return dto.MilestoneUpdateResponse{}, err
+	}
+
 	user_role := user_id.Role
-	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, req.ProjectID)
+	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, projectId)
 
 	if user_role != "admin" || is_project_member == false {
 		return dto.MilestoneUpdateResponse{}, dto.ErrUpdateMilestone
@@ -125,7 +130,7 @@ func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRe
 
 	if user_role == "mahasiswa" {
 		updatedMilestone = entity.Milestone{
-			MilestoneID: req.MilestoneID,
+			MilestoneID: milestoneId,
 			Status:      req.Status,
 		}
 
@@ -136,8 +141,8 @@ func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRe
 			return dto.MilestoneUpdateResponse{}, errors.New("internal error: failed to parse date after validation")
 		}
 		updatedMilestone = entity.Milestone{
-			MilestoneID: req.MilestoneID,
-			ProjectID:   req.ProjectID,
+			MilestoneID: milestoneId,
+			ProjectID:   projectId,
 			Title:       req.Title,
 			Description: req.Description,
 			DueDate:     parsedDueDate,

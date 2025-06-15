@@ -21,7 +21,7 @@ func Milestone(route *gin.Engine, injector *do.Injector) {
 	}
 	milestoneRoutes := route.Group("/api/milestones")
 	{
-		milestoneRoutes.PATCH("/milestone_id", middleware.Authenticate(jwtService), milestoneController.Update)
+		milestoneRoutes.PATCH("/:milestone_id", middleware.Authenticate(jwtService), milestoneController.Update)
 		milestoneRoutes.DELETE("/:milestone_id", middleware.Authenticate(jwtService), milestoneController.Delete)
 	}
 }

@@ -97,13 +97,33 @@ func (c *milestoneController) Update(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
-	userId := ctx.MustGet("user_id").(string)
-	result, err := c.milestoneService.Update(ctx.Request.Context(), req, userId)
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		res := utils.BuildResponseFailed("User ID is required", "User ID cannot be empty", nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
+		return
+	}
+
+	milestoneId := ctx.Param("milestone_id")
+	if milestoneId == "" {
+		res := utils.BuildResponseFailed("Milestone ID is required", "Milestone ID cannot be empty", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	milestoneIdUint, err := utils.StringToUint(milestoneId)
+	if err != nil {
+		res := utils.BuildResponseFailed("Invalid Milestone ID", err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := c.milestoneService.Update(ctx.Request.Context(), req, userId, milestoneIdUint)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPDATE_MILESTONE, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
+
 	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_UPDATE_MILESTONE, result)
 	ctx.JSON(http.StatusOK, res)
 }
