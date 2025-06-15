@@ -16,7 +16,7 @@ type (
 			tx *gorm.DB,
 			req dto.PaginationRequest,
 		) (dto.GetAllProjectRepositoryResponse, error)
-		GetProjectById(ctx context.Context, tx *gorm.DB, projectId uint) (entity.Project, error)
+		GetProjectById(ctx context.Context, tx *gorm.DB, projectId uint, preload ...string) (entity.Project, error)
 		GetProjectByTitle(ctx context.Context, tx *gorm.DB, title string) (entity.Project, error)
 		Update(ctx context.Context, tx *gorm.DB, project entity.Project) (entity.Project, error)
 		Delete(ctx context.Context, tx *gorm.DB, projectId uint) error
@@ -85,9 +85,15 @@ func (r *projectRepository) GetAllProjectWithPagination(
 	}, err
 }
 
-func (r *projectRepository) GetProjectById(ctx context.Context, tx *gorm.DB, projectId uint) (entity.Project, error) {
+func (r *projectRepository) GetProjectById(ctx context.Context, tx *gorm.DB, projectId uint, preload ...string) (entity.Project, error) {
 	if tx == nil {
 		tx = r.db
+	}
+
+	query := tx.WithContext(ctx)
+
+	for _, relation := range preload {
+		query = query.Preload(relation)
 	}
 
 	var project entity.Project

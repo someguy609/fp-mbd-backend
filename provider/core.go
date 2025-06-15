@@ -38,5 +38,5 @@ func RegisterDependencies(injector *do.Injector) {
 	// Provide Dependencies
 	ProvideUserDependencies(injector, db, jwtService)
 	ProvideDocumentDependencies(injector, db, minioClient)
-	ProvideProjectDependencies(injector, db)
+	ProvideProjectDependencies(injector, db, minioClient)
 }
