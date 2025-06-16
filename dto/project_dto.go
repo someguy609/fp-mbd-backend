@@ -2,6 +2,7 @@ package dto
 
 import (
 	"errors"
+	"mime/multipart"
 	"time"
 
 	"fp_mbd/entity"
@@ -57,6 +58,16 @@ type (
 
 	GetAllProjectRepositoryResponse struct {
 		Projects []entity.Project `json:"projects"`
+		PaginationResponse
+	}
+
+	UploadProjectDocumentRequest struct {
+		Title     string                `json:"title" form:"title" binding:"required,min=2,max=100"`
+		File      *multipart.FileHeader `json:"file" form:"file" binding:"required"`
+	}
+
+	GetProjectDocumentRequest struct {
+		Data []entity.Document `json:"documents"`
 		PaginationResponse
 	}
 

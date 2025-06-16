@@ -14,7 +14,7 @@ func Project(route *gin.Engine, injector *do.Injector) {
 	jwtService := do.MustInvokeNamed[service.JWTService](injector, constants.JWTService)
 	projectController := do.MustInvoke[controller.ProjectController](injector)
 
-	routes := route.Group("/api/projects")
+	routes := route.Group("/api/project")
 	{
 		// Project
 		// todo: convert roles into enum
@@ -23,5 +23,7 @@ func Project(route *gin.Engine, injector *do.Injector) {
 		routes.GET("/:id", middleware.Authenticate(jwtService), projectController.GetProject)
 		routes.PATCH("/:id", middleware.Authenticate(jwtService), middleware.RequireRoles("dosen"), projectController.Update)
 		routes.DELETE("/:id", middleware.Authenticate(jwtService), middleware.RequireRoles("dosen"), projectController.Delete)
+		routes.POST("/:id/documents", middleware.Authenticate(jwtService), projectController.UploadDocument)
+		routes.GET("/:id/documents", middleware.Authenticate(jwtService), projectController.GetDocument)
 	}
 }
