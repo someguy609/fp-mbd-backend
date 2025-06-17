@@ -14,7 +14,7 @@ type User struct {
 	ContactInfo string `gorm:"type:varchar(100)" json:"contact_info"`
 	Password    string `gorm:"type:varchar(255);not null" json:"-"`
 
-	ProjectMembers []ProjectMember `gorm:"foreignKey:UsersUserID" json:"project_members,omitempty"`
+	ProjectMembers []ProjectMember `gorm:"foreignKey:UserID" json:"project_members,omitempty"`
 	Documents      []Document      `gorm:"foreignKey:UsersUserID" json:"documents,omitempty"`
 }
 
