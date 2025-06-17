@@ -34,7 +34,7 @@ func SetupMinioConnection() *minio.Client {
 	endpoint := fmt.Sprintf("%s:%s", host, port)
 
 	client, err := minio.New(endpoint, &minio.Options{
-		Creds: credentials.NewStaticV4(access_key, secret_key, ""),
+		Creds:  credentials.NewStaticV4(access_key, secret_key, ""),
 		Secure: useSSL,
 	})
 

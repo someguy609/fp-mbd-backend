@@ -15,7 +15,7 @@ type (
 	ProjectService interface {
 		Create(ctx context.Context, req dto.ProjectCreateRequest) (dto.ProjectResponse, error)
 		GetAllProjectWithPagination(ctx context.Context, req dto.PaginationRequest) (dto.ProjectPaginationResponse, error)
-		GetProjectById(ctx context.Context, projectId uint) (dto.ProjectResponse, error)
+		GetProjectById(ctx context.Context, projectId uint, preload ...string) (dto.ProjectResponse, error)
 		Update(ctx context.Context, req dto.ProjectUpdateRequest, projectId uint) (dto.ProjectUpdateResponse, error)
 		Delete(ctx context.Context, projectId uint) error
 	}
@@ -112,8 +112,8 @@ func (s *projectService) GetAllProjectWithPagination(
 		},
 	}, nil
 }
-func (s *projectService) GetProjectById(ctx context.Context, projectId uint) (dto.ProjectResponse, error) {
-	project, err := s.projectRepo.GetProjectById(ctx, nil, projectId)
+func (s *projectService) GetProjectById(ctx context.Context, projectId uint, preload ...string) (dto.ProjectResponse, error) {
+	project, err := s.projectRepo.GetProjectById(ctx, nil, projectId, preload...)
 	if err != nil {
 		return dto.ProjectResponse{}, dto.ErrGetProjectById
 	}
