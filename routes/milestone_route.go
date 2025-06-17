@@ -14,11 +14,14 @@ func Milestone(route *gin.Engine, injector *do.Injector) {
 	jwtService := do.MustInvokeNamed[service.JWTService](injector, constants.JWTService)
 	milestoneController := do.MustInvoke[controller.MilestoneController](injector)
 
-	routes := route.Group("/api/milestone")
+	projectRoutes := route.Group("/api/project/:project_id/milestones")
 	{
-		routes.POST("", milestoneController.Create)
-		routes.GET("/:project_id", milestoneController.GetMilestonesByProjectId)
-		routes.PATCH("", middleware.Authenticate(jwtService), milestoneController.Update)
-		routes.DELETE("", middleware.Authenticate(jwtService), milestoneController.Delete)
+		projectRoutes.POST("", milestoneController.Create)
+		projectRoutes.GET("", milestoneController.GetMilestonesByProjectId)
+	}
+	milestoneRoutes := route.Group("/api/milestones")
+	{
+		milestoneRoutes.PATCH("/:milestone_id", middleware.Authenticate(jwtService), milestoneController.Update)
+		milestoneRoutes.DELETE("/:milestone_id", middleware.Authenticate(jwtService), milestoneController.Delete)
 	}
 }

@@ -17,12 +17,11 @@ type (
 		Register(ctx *gin.Context)
 		Login(ctx *gin.Context)
 		Me(ctx *gin.Context)
-		// Refresh(ctx *gin.Context)
 		GetAllUser(ctx *gin.Context)
-		// SendVerificationEmail(ctx *gin.Context)
-		// VerifyEmail(ctx *gin.Context)
+		GetUserByUserId(ctx *gin.Context)
 		Update(ctx *gin.Context)
 		Delete(ctx *gin.Context)
+		// Logout(ctx *gin.Context)
 	}
 
 	userController struct {
@@ -63,7 +62,14 @@ func (c *userController) GetAllUser(ctx *gin.Context) {
 		return
 	}
 
-	result, err := c.userService.GetAllUserWithPagination(ctx.Request.Context(), req)
+	user_id := ctx.GetString("user_id")
+	if user_id == "" {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, "user_id is required", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := c.userService.GetAllUserWithPagination(ctx.Request.Context(), req, user_id)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_LIST_USER, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
@@ -79,11 +85,35 @@ func (c *userController) GetAllUser(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, resp)
 }
+func (c *userController) GetUserByUserId(ctx *gin.Context) {
+	userId := ctx.Param("user_id")
+
+	if userId == "" {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, "user_id is required", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := c.userService.GetUserByUserId(ctx.Request.Context(), userId)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_USER, err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_GET_USER, result)
+	ctx.JSON(http.StatusOK, res)
+}
 
 func (c *userController) Me(ctx *gin.Context) {
-	userId := ctx.MustGet("user_id").(string)
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, "user_id is required", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
 
-	result, err := c.userService.GetUserById(ctx.Request.Context(), userId)
+	result, err := c.userService.GetUserByUserId(ctx.Request.Context(), userId)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_USER, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
@@ -102,7 +132,7 @@ func (c *userController) Login(ctx *gin.Context) {
 		return
 	}
 
-	result, err := c.userService.Verify(ctx.Request.Context(), req)
+	result, err := c.userService.Login(ctx.Request.Context(), req)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_LOGIN, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
@@ -112,6 +142,19 @@ func (c *userController) Login(ctx *gin.Context) {
 	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_LOGIN, result)
 	ctx.JSON(http.StatusOK, res)
 }
+
+// func (c *userController) Logout(ctx *gin.Context) {
+// 	userId := ctx.GetString("user_id")
+
+// 	if err := c.userService.Logout(ctx.Request.Context(), userId); err != nil {
+// 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_PROSES_REQUEST, err.Error(), nil)
+// 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+// 		return
+// 	}
+
+// 	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_LOGIN, nil)
+// 	ctx.JSON(http.StatusOK, res)
+// }
 
 // func (c *userController) SendVerificationEmail(ctx *gin.Context) {
 // 	var req dto.SendVerificationEmailRequest
@@ -159,7 +202,14 @@ func (c *userController) Update(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.MustGet("user_id").(string)
+	userId := ctx.GetString("user_id")
+
+	if userId == "" {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, "user_id is required", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
 	result, err := c.userService.Update(ctx.Request.Context(), req, userId)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPDATE_USER, err.Error(), nil)
@@ -172,9 +222,20 @@ func (c *userController) Update(ctx *gin.Context) {
 }
 
 func (c *userController) Delete(ctx *gin.Context) {
-	userId := ctx.MustGet("user_id").(string)
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, "user_id is required", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	userIdParam := ctx.Param("user_id")
+	if userIdParam == "" {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, "user_id is required", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
 
-	if err := c.userService.Delete(ctx.Request.Context(), userId); err != nil {
+	if err := c.userService.Delete(ctx.Request.Context(), userId, userIdParam); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_USER, err.Error(), nil)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return

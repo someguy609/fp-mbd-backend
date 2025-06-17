@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
 	"fp_mbd/dto"
@@ -15,12 +16,13 @@ import (
 type (
 	UserService interface {
 		Register(ctx context.Context, req dto.UserCreateRequest) (dto.UserResponse, error)
-		GetAllUserWithPagination(ctx context.Context, req dto.PaginationRequest) (dto.UserPaginationResponse, error)
-		GetUserById(ctx context.Context, userId string) (dto.UserResponse, error)
-		GetUserByEmail(ctx context.Context, email string) (dto.UserResponse, error)
+		GetAllUserWithPagination(ctx context.Context, req dto.PaginationRequest, userId string) (dto.UserPaginationResponse, error)
+		GetUserByUserId(ctx context.Context, userId string) (dto.UserResponse, error)
+		// GetUserByEmail(ctx context.Context, email string) (dto.UserResponse, error)
 		Update(ctx context.Context, req dto.UserUpdateRequest, userId string) (dto.UserUpdateResponse, error)
-		Delete(ctx context.Context, userId string) error
-		Verify(ctx context.Context, req dto.UserLoginRequest) (dto.TokenResponse, error)
+		Delete(ctx context.Context, userId string, userIdParam string) error
+		Login(ctx context.Context, req dto.UserLoginRequest) (dto.TokenResponse, error)
+		// Logout(ctx context.Context, userId string) error
 		// SendVerificationEmail(ctx context.Context, req dto.SendVerificationEmailRequest) error
 		// VerifyEmail(ctx context.Context, req dto.VerifyEmailRequest) (dto.VerifyEmailResponse, error)
 		// Verify(ctx context.Context, req dto.UserLoginRequest) (dto.TokenResponse, error)
@@ -102,7 +104,17 @@ func (s *userService) Register(ctx context.Context, req dto.UserCreateRequest) (
 func (s *userService) GetAllUserWithPagination(
 	ctx context.Context,
 	req dto.PaginationRequest,
+	userId string,
 ) (dto.UserPaginationResponse, error) {
+
+	user, err := s.userRepo.GetUserById(ctx, nil, userId)
+	if err != nil {
+		return dto.UserPaginationResponse{}, dto.ErrUserNotFound
+	}
+	if user.Role != "admin" {
+		return dto.UserPaginationResponse{}, errors.New("unauthorized access")
+	}
+
 	dataWithPaginate, err := s.userRepo.GetAllUserWithPagination(ctx, nil, req)
 	if err != nil {
 		return dto.UserPaginationResponse{}, err
@@ -131,7 +143,7 @@ func (s *userService) GetAllUserWithPagination(
 		},
 	}, nil
 }
-func (s *userService) GetUserById(ctx context.Context, userId string) (dto.UserResponse, error) {
+func (s *userService) GetUserByUserId(ctx context.Context, userId string) (dto.UserResponse, error) {
 	user, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
 		return dto.UserResponse{}, dto.ErrGetUserById
@@ -192,16 +204,16 @@ func (s *userService) Update(ctx context.Context, req dto.UserUpdateRequest, use
 	}, nil
 }
 
-func (s *userService) Delete(ctx context.Context, userId string) error {
+func (s *userService) Delete(ctx context.Context, userId string, userIdParams string) error {
+
+	if userId != userIdParams {
+		return dto.ErrUnauthorizedAccess
+	}
+
 	tx := s.db.Begin()
 	defer SafeRollback(tx)
 
-	user, err := s.userRepo.GetUserById(ctx, nil, userId)
-	if err != nil {
-		return dto.ErrUserNotFound
-	}
-
-	err = s.userRepo.Delete(ctx, nil, user.UserID)
+	err := s.userRepo.Delete(ctx, nil, userId)
 	if err != nil {
 		return dto.ErrDeleteUser
 	}
@@ -209,58 +221,55 @@ func (s *userService) Delete(ctx context.Context, userId string) error {
 	return nil
 }
 
-func (s *userService) Verify(ctx context.Context, req dto.UserLoginRequest) (dto.TokenResponse, error) {
-	tx := s.db.Begin()
-	defer SafeRollback(tx)
-
-	user, err := s.userRepo.GetUserByEmail(ctx, tx, req.Email)
+func (s *userService) Login(ctx context.Context, req dto.UserLoginRequest) (dto.TokenResponse, error) {
+	user, err := s.userRepo.GetUserByEmail(ctx, nil, req.Email)
 	if err != nil {
-		tx.Rollback()
-		return dto.TokenResponse{}, errors.New("invalid email or password")
+		return dto.TokenResponse{}, dto.ErrUserNotFound
 	}
 
-	checkPassword, err := helpers.CheckPassword(user.Password, []byte(req.Password))
-	if err != nil || !checkPassword {
-		tx.Rollback()
-		return dto.TokenResponse{}, errors.New("invalid email or password")
+	check_pw, err := helpers.CheckPassword(user.Password, []byte(req.Password))
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return dto.TokenResponse{}, dto.ErrInvalidCredentials
+		}
+		return dto.TokenResponse{}, err
+	}
+
+	if !check_pw {
+		return dto.TokenResponse{}, dto.ErrInvalidCredentials
 	}
 
 	accessToken := s.jwtService.GenerateAccessToken(user.UserID, user.Role)
 
-	// refreshTokenString, expiresAt := s.jwtService.GenerateRefreshToken()
-
-	// hashedToken, err := helpers.HashPassword(refreshTokenString)
-	// if err != nil {
-	// 	tx.Rollback()
-	// 	return dto.TokenResponse{}, err
-	// }
-
-	// if err := s.refreshTokenRepo.DeleteByUserID(ctx, tx, user.UserID); err != nil {
-	// 	tx.Rollback()
-	// 	return dto.TokenResponse{}, err
-	// }
-
-	// refreshToken := entity.RefreshToken{
-	// 	UserID:    user.UserID,
-	// 	Token:     hashedToken,
-	// 	ExpiresAt: expiresAt,
-	// }
-
-	// if _, err := s.refreshTokenRepo.Create(ctx, tx, refreshToken); err != nil {
-	// 	tx.Rollback()
-	// 	return dto.TokenResponse{}, err
-	// }
-
-	if err := tx.Commit().Error; err != nil {
-		return dto.TokenResponse{}, err
-	}
-
 	return dto.TokenResponse{
-		AccessToken:  accessToken,
-		// RefreshToken: "nonelmao",
-		Role:         user.Role,
+		AccessToken: accessToken,
 	}, nil
 }
+
+// func (s *userService) Logout(ctx context.Context, userId string) error {
+// 	tx := s.db.Begin()
+// 	defer SafeRollback(tx)
+
+// 	// Check if user exists
+// 	_, err := s.userRepo.GetUserById(ctx, tx, userId)
+// 	if err != nil {
+// 		tx.Rollback()
+// 		return dto.ErrUserNotFound
+// 	}
+
+// 	// Delete all refresh tokens for the user
+// 	if err := s.refreshTokenRepo.DeleteByUserID(ctx, tx, userId); err != nil {
+// 		tx.Rollback()
+// 		return err
+// 	}
+
+// 	// Commit transaction
+// 	if err := tx.Commit().Error; err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
 
 // func (s *userService) RefreshToken(ctx context.Context, req dto.RefreshTokenRequest) (dto.TokenResponse, error) {
 // 	tx := s.db.Begin()

@@ -37,8 +37,26 @@ func (c *milestoneController) Create(ctx *gin.Context) {
 	}
 
 	user_id := ctx.GetString("user_id")
+	if user_id == "" {
+		res := utils.BuildResponseFailed(dto.MESSAGE_UNAUTHORIZED_CREATE_MILESTONE, "User ID is required", nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
+		return
+	}
+	project_id := ctx.Param("project_id")
+	if project_id == "" {
+		res := utils.BuildResponseFailed("Project ID is required", "Project ID cannot be empty", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
 
-	result, err := c.milestoneService.Create(ctx.Request.Context(), req, user_id)
+	project_id_uint, err := utils.StringToUint(project_id)
+	if err != nil {
+		res := utils.BuildResponseFailed("Invalid Project ID", err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := c.milestoneService.Create(ctx.Request.Context(), req, user_id, project_id_uint)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CREATE_MILESTONE, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
@@ -79,19 +97,14 @@ func (c *milestoneController) Update(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
-	userId := ctx.MustGet("user_id").(string)
-	result, err := c.milestoneService.Update(ctx.Request.Context(), req, userId)
-	if err != nil {
-		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPDATE_MILESTONE, err.Error(), nil)
-		ctx.JSON(http.StatusBadRequest, res)
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		res := utils.BuildResponseFailed("User ID is required", "User ID cannot be empty", nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
 		return
 	}
-	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_UPDATE_MILESTONE, result)
-	ctx.JSON(http.StatusOK, res)
-}
 
-func (c *milestoneController) Delete(ctx *gin.Context) {
-	milestoneId := ctx.Query("milestone_id")
+	milestoneId := ctx.Param("milestone_id")
 	if milestoneId == "" {
 		res := utils.BuildResponseFailed("Milestone ID is required", "Milestone ID cannot be empty", nil)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
@@ -103,7 +116,37 @@ func (c *milestoneController) Delete(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
-	userId := ctx.MustGet("user_id").(string)
+
+	result, err := c.milestoneService.Update(ctx.Request.Context(), req, userId, milestoneIdUint)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPDATE_MILESTONE, err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_UPDATE_MILESTONE, result)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (c *milestoneController) Delete(ctx *gin.Context) {
+	milestoneId := ctx.Param("milestone_id")
+	if milestoneId == "" {
+		res := utils.BuildResponseFailed("Milestone ID is required", "Milestone ID cannot be empty", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	milestoneIdUint, err := utils.StringToUint(milestoneId)
+	if err != nil {
+		res := utils.BuildResponseFailed("Invalid Milestone ID", err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		res := utils.BuildResponseFailed("User ID is required", "User ID cannot be empty", nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
+		return
+	}
 
 	if err := c.milestoneService.Delete(ctx.Request.Context(), milestoneIdUint, userId); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MILESTONE, err.Error(), nil)

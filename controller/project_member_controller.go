@@ -13,7 +13,9 @@ type (
 	ProjectMemberController interface {
 		Create(ctx *gin.Context)
 		GetProjectMembers(ctx *gin.Context)
-		GetProjectMemberByProjecMemberId(ctx *gin.Context)
+		// GetProjectMemberByProjecMemberId(ctx *gin.Context)
+		GetJoinRequests(ctx *gin.Context)
+		ApproveJoinRequest(ctx *gin.Context)
 		Update(ctx *gin.Context)
 		Delete(ctx *gin.Context)
 	}
@@ -51,7 +53,17 @@ func (c *projectMemberController) Create(ctx *gin.Context) {
 }
 
 func (c *projectMemberController) GetProjectMembers(ctx *gin.Context) {
-	result, err := c.projectMemberService.GetProjectMembers(ctx.Request.Context())
+	projectId := ctx.Param("project_id")
+	if projectId == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Project ID is required"})
+		return
+	}
+	projectIdUint, err := utils.StringToUint(projectId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Project ID"})
+		return
+	}
+	result, err := c.projectMemberService.GetProjectMembers(ctx.Request.Context(), projectIdUint)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get project members"})
 		return
@@ -59,26 +71,55 @@ func (c *projectMemberController) GetProjectMembers(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, result)
 }
-func (c *projectMemberController) GetProjectMemberByProjecMemberId(ctx *gin.Context) {
-	projectMemberId := ctx.Param("projectMemberId")
-	if projectMemberId == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Project Member ID is required"})
+func (c *projectMemberController) GetJoinRequests(ctx *gin.Context) {
+	projectId := ctx.Param("project_id")
+	if projectId == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Project ID is required"})
 		return
 	}
-	projectMemberIdUint, err := utils.StringToUint(projectMemberId)
+	projectIdUint, err := utils.StringToUint(projectId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Project Member ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Project ID"})
+		return
+	}
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
 	}
 
-	result, err := c.projectMemberService.GetProjectMemberByProjectMemberId(ctx.Request.Context(), projectMemberIdUint)
+	result, err := c.projectMemberService.GetJoinRequests(ctx.Request.Context(), projectIdUint, userId)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get project member"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get join requests"})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, result)
+
 }
+func (c *projectMemberController) ApproveJoinRequest(ctx *gin.Context) {
+}
+
+// func (c *projectMemberController) GetProjectMemberByProjecMemberId(ctx *gin.Context) {
+// 	projectMemberId := ctx.Param("projectMemberId")
+// 	if projectMemberId == "" {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Project Member ID is required"})
+// 		return
+// 	}
+// 	projectMemberIdUint, err := utils.StringToUint(projectMemberId)
+// 	if err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Project Member ID"})
+// 		return
+// 	}
+
+// 	result, err := c.projectMemberService.GetProjectMemberByProjectMemberId(ctx.Request.Context(), projectMemberIdUint)
+// 	if err != nil {
+// 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get project member"})
+// 		return
+// 	}
+
+//		ctx.JSON(http.StatusOK, result)
+//	}
 func (c *projectMemberController) Update(ctx *gin.Context) {
 	var req dto.ProjectMemberUpdateRequest
 	if err := ctx.ShouldBind(&req); err != nil {
