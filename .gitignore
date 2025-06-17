@@ -4,3 +4,6 @@ assets/
 volumes/
 .idea/
 migrations/json/**/*.json
+migrations/**/*.go
+migrations/*.go
+insert.sql

@@ -27,7 +27,8 @@ CREATE TABLE projects (
 -- Tabel Anggota Proyek (Project Members)
 CREATE TABLE project_members (
     project_member_id SERIAL PRIMARY KEY,
-    role_project VARCHAR(10) NOT NULL, 
+    role_project VARCHAR(10) NOT NULL,
+    is_active BOOLEAN DEFAULT FALSE NOT NULL, 
     joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     users_user_id VARCHAR(15) NOT NULL,
     projects_project_id INT NOT NULL,

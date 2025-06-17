@@ -7,7 +7,7 @@ import (
 )
 
 func Migrate(db *gorm.DB) error {
-	sqlScript, err := os.ReadFile("database.sql")
+	sqlScript, err := os.ReadFile("migrations/database.sql")
 
 	if err != nil {
 		return err

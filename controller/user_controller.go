@@ -106,12 +106,17 @@ func (c *userController) GetUserByUserId(ctx *gin.Context) {
 }
 
 func (c *userController) Me(ctx *gin.Context) {
+
+	println("Me called")
+
 	userId := ctx.GetString("user_id")
 	if userId == "" {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, "user_id is required", nil)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
+
+	println("userId:", userId)
 
 	result, err := c.userService.GetUserByUserId(ctx.Request.Context(), userId)
 	if err != nil {

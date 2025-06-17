@@ -7,22 +7,19 @@ import (
 )
 
 func Seeder(db *gorm.DB) error {
-	if err := seeds.ListUserSeeder(db); err != nil {
-		return err
+	// Import the seeders from the seeds package
+	seeders := []func(*gorm.DB) error{
+		seeds.ListUserSeeder,
+		seeds.ListProjectSeeder,
+		seeds.ListDocumentSeeder,
+		seeds.ListMilestoneSeeder,
+		seeds.ListProjectMemberSeeder,
 	}
 
-	if err := seeds.ListProjectSeeder(db); err != nil {
-		return err
-	}
-
-	if err := seeds.ListDocumentSeeder(db); err != nil {
-		return err
-	}
-	if err := seeds.ListMilestoneSeeder(db); err != nil {
-		return err
-	}
-	if err := seeds.ListProjectMemberSeeder(db); err != nil {
-		return err
+	for _, seeder := range seeders {
+		if err := seeder(db); err != nil {
+			return err
+		}
 	}
 
 	return nil
