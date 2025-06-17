@@ -11,7 +11,7 @@ import (
 
 type (
 	ProjectMemberService interface {
-		Create(ctx context.Context, req dto.ProjectMemberCreateRequest, userId string) (dto.ProjectMemberCreateResponse, error)
+		Create(ctx context.Context, req dto.ProjectMemberCreateRequest, userId string, projectId uint) (dto.ProjectMemberCreateResponse, error)
 		GetProjectMembers(ctx context.Context, projectId uint) ([]dto.ProjectMemberGetResponse, error)
 		GetJoinRequests(ctx context.Context, projectId uint, userId string) ([]dto.ProjectMemberGetResponse, error)
 		ApproveJoinRequest(ctx context.Context, projectMemberId uint, userId string) (dto.ProjectMemberUpdateResponse, error)
@@ -42,7 +42,7 @@ func NewProjectMemberService(
 	}
 }
 
-func (s *projectMemberService) Create(ctx context.Context, req dto.ProjectMemberCreateRequest, userId string) (dto.ProjectMemberCreateResponse, error) {
+func (s *projectMemberService) Create(ctx context.Context, req dto.ProjectMemberCreateRequest, userId string, projectId uint) (dto.ProjectMemberCreateResponse, error) {
 	user, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
 		return dto.ProjectMemberCreateResponse{}, err
@@ -52,11 +52,13 @@ func (s *projectMemberService) Create(ctx context.Context, req dto.ProjectMember
 	}
 
 	projectMember := entity.ProjectMember{
-		RoleProject: req.RoleProject,
-		ProjectID:   req.ProjectID,
-		UserID:      userId,
-		IsActive:    false,
+		RoleProject:       req.RoleProject,
+		UsersUserID:       userId,
+		ProjectsProjectID: projectId,
+		IsActive:          false,
 	}
+
+	println("Project ID:", projectMember.ProjectsProjectID)
 
 	projectMember, err = s.projectMemberRepo.Create(ctx, nil, projectMember)
 	if err != nil {
@@ -65,8 +67,8 @@ func (s *projectMemberService) Create(ctx context.Context, req dto.ProjectMember
 
 	projectMemberResponse := dto.ProjectMemberCreateResponse{
 		ProjectMemberID: projectMember.ProjectMemberID,
-		UserID:          projectMember.UserID,
-		ProjectID:       projectMember.ProjectID,
+		UserID:          projectMember.UsersUserID,
+		ProjectID:       projectMember.ProjectsProjectID,
 		RoleProject:     projectMember.RoleProject,
 		IsActive:        projectMember.IsActive,
 		JoinedAt:        projectMember.JoinedAt.String(),
@@ -85,8 +87,8 @@ func (s *projectMemberService) GetProjectMembers(ctx context.Context, projectId 
 	for _, pm := range projectMembers {
 		projectMemberResponses = append(projectMemberResponses, dto.ProjectMemberGetResponse{
 			ProjectMemberID: pm.ProjectMemberID,
-			UserID:          pm.UserID,
-			ProjectID:       pm.ProjectID,
+			UserID:          pm.UsersUserID,
+			ProjectID:       pm.ProjectsProjectID,
 			RoleProject:     pm.RoleProject,
 			IsActive:        pm.IsActive,
 			JoinedAt:        pm.JoinedAt.String(),
@@ -117,8 +119,8 @@ func (s *projectMemberService) GetJoinRequests(ctx context.Context, projectId ui
 	for _, pm := range projectMembers {
 		projectMemberResponses = append(projectMemberResponses, dto.ProjectMemberGetResponse{
 			ProjectMemberID: pm.ProjectMemberID,
-			UserID:          pm.UserID,
-			ProjectID:       pm.ProjectID,
+			UserID:          pm.UsersUserID,
+			ProjectID:       pm.ProjectsProjectID,
 			RoleProject:     pm.RoleProject,
 			IsActive:        pm.IsActive,
 			JoinedAt:        pm.JoinedAt.String(),
@@ -144,8 +146,8 @@ func (s *projectMemberService) ApproveJoinRequest(ctx context.Context, projectMe
 	}
 	return dto.ProjectMemberUpdateResponse{
 		ProjectMemberID: projectMember.ProjectMemberID,
-		UserID:          projectMember.UserID,
-		ProjectID:       projectMember.ProjectID,
+		UserID:          projectMember.UsersUserID,
+		ProjectID:       projectMember.ProjectsProjectID,
 		RoleProject:     projectMember.RoleProject,
 		JoinedAt:        projectMember.JoinedAt.String(),
 		IsActive:        projectMember.IsActive,
@@ -172,16 +174,16 @@ func (s *projectMemberService) Update(ctx context.Context, req dto.ProjectMember
 	if err != nil {
 		return dto.ProjectMemberUpdateResponse{}, err
 	}
-	if projectMember.UserID != userId {
+	if projectMember.UsersUserID != userId {
 		return dto.ProjectMemberUpdateResponse{}, dto.ErrUnauthorizedUpdateProjectMember
 	}
 
 	projectMemberEntity := entity.ProjectMember{
-		ProjectMemberID: projectMember.ProjectMemberID,
-		RoleProject:     req.RoleProject,
-		JoinedAt:        projectMember.JoinedAt,
-		UserID:          projectMember.UserID,
-		ProjectID:       projectMember.ProjectID,
+		ProjectMemberID:   projectMember.ProjectMemberID,
+		RoleProject:       req.RoleProject,
+		JoinedAt:          projectMember.JoinedAt,
+		UsersUserID:       projectMember.UsersUserID,
+		ProjectsProjectID: projectMember.ProjectsProjectID,
 	}
 
 	projectMemberRes, err := s.projectMemberRepo.Update(ctx, nil, projectMemberEntity)
@@ -193,9 +195,9 @@ func (s *projectMemberService) Update(ctx context.Context, req dto.ProjectMember
 	return dto.ProjectMemberUpdateResponse{
 		ProjectMemberID: projectMemberRes.ProjectMemberID,
 		JoinedAt:        projectMemberRes.JoinedAt.String(),
-		ProjectID:       projectMemberRes.ProjectID,
+		ProjectID:       projectMemberRes.ProjectsProjectID,
 		RoleProject:     projectMemberRes.RoleProject,
-		UserID:          projectMemberRes.UserID,
+		UserID:          projectMemberRes.UsersUserID,
 	}, nil
 }
 

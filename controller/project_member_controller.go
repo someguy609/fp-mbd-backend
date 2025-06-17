@@ -37,13 +37,23 @@ func (c *projectMemberController) Create(ctx *gin.Context) {
 		return
 	}
 
-	userId := ctx.MustGet("user_id").(string)
+	userId := ctx.GetString("user_id")
 	if userId == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
 	}
+	projectId := ctx.Param("project_id")
+	if projectId == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Project ID is required"})
+		return
+	}
+	projectIdUint, err := utils.StringToUint(projectId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Project ID"})
+		return
+	}
 
-	result, err := c.projectMemberService.Create(ctx.Request.Context(), req, userId)
+	result, err := c.projectMemberService.Create(ctx.Request.Context(), req, userId, projectIdUint)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create project member"})
 		return

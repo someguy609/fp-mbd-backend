@@ -33,8 +33,10 @@ func (r *projectMemberRepository) Create(ctx context.Context, tx *gorm.DB, proje
 	if tx == nil {
 		tx = r.db
 	}
+	println("Creating project member:")
 
 	if err := tx.WithContext(ctx).Create(&projectMember).Error; err != nil {
+		println("Error creating project member:", err.Error())
 		return entity.ProjectMember{}, err
 	}
 

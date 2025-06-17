@@ -16,11 +16,11 @@ func ProjectMember(route *gin.Engine, injector *do.Injector) {
 
 	routes := route.Group("/api/project/:project_id")
 	{
-		routes.POST("/request-join", projectMemberController.Create)
-		routes.GET("/members", projectMemberController.GetProjectMembers)
-		routes.GET("/join-request", projectMemberController.GetJoinRequests)
+		routes.POST("/request-join", middleware.Authenticate(jwtService), projectMemberController.Create)
+		routes.GET("/members", middleware.Authenticate(jwtService), projectMemberController.GetProjectMembers)
+		routes.GET("/join-request", middleware.Authenticate(jwtService), projectMemberController.GetJoinRequests)
 		// routes.GET("/:projectMemberId", projectMemberController.GetProjectMemberByProjecMemberId)
-		routes.PATCH("/join-request/:projectMemberId/approve", projectMemberController.ApproveJoinRequest)
+		routes.PATCH("/join-request/:projectMemberId/approve", middleware.Authenticate(jwtService), projectMemberController.ApproveJoinRequest)
 		// routes.PATCH("/:projectMemberId", middleware.Authenticate(jwtService), projectMemberController.Update)
 		routes.DELETE("/members/:projectMemberId", middleware.Authenticate(jwtService), projectMemberController.Delete)
 	}
