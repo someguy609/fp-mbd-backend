@@ -10,13 +10,13 @@ import (
 
 const (
 	// Failed
-	MESSAGE_FAILED_CREATE_PROJECT = "failed create project"
+	MESSAGE_FAILED_CREATE_PROJECT   = "failed create project"
 	MESSAGE_FAILED_GET_LIST_PROJECT = "failed get list project"
 	MESSAGE_FAILED_GET_PROJECT      = "failed get project"
 	MESSAGE_FAILED_UPDATE_PROJECT   = "failed update project"
 	MESSAGE_FAILED_DELETE_PROJECT   = "failed delete project"
 	// Success
-	MESSAGE_SUCCESS_CREATE_PROJECT = "success create project"
+	MESSAGE_SUCCESS_CREATE_PROJECT   = "success create project"
 	MESSAGE_SUCCESS_GET_LIST_PROJECT = "success get list project"
 	MESSAGE_SUCCESS_GET_PROJECT      = "success get project"
 	MESSAGE_SUCCESS_UPDATE_PROJECT   = "success update project"
@@ -62,8 +62,8 @@ type (
 	}
 
 	UploadProjectDocumentRequest struct {
-		Title     string                `json:"title" form:"title" binding:"required,min=2,max=100"`
-		File      *multipart.FileHeader `json:"file" form:"file" binding:"required"`
+		Title string                `json:"title" form:"title" binding:"required,min=2,max=100"`
+		File  *multipart.FileHeader `json:"file" form:"file" binding:"required"`
 	}
 
 	GetProjectDocumentRequest struct {

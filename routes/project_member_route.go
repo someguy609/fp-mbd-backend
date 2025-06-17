@@ -14,7 +14,7 @@ func ProjectMember(route *gin.Engine, injector *do.Injector) {
 	jwtService := do.MustInvokeNamed[service.JWTService](injector, constants.JWTService)
 	projectMemberController := do.MustInvoke[controller.ProjectMemberController](injector)
 
-	routes := route.Group("/api/projects/:project_id")
+	routes := route.Group("/api/project/:project_id")
 	{
 		routes.POST("/request-join", projectMemberController.Create)
 		routes.GET("/members", projectMemberController.GetProjectMembers)

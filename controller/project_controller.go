@@ -25,14 +25,14 @@ type (
 	}
 
 	projectController struct {
-		projectService service.ProjectService
+		projectService  service.ProjectService
 		documentService service.DocumentService
 	}
 )
 
 func NewProjectController(ps service.ProjectService, ds service.DocumentService) ProjectController {
 	return &projectController{
-		projectService: ps,
+		projectService:  ps,
 		documentService: ds,
 	}
 }
@@ -82,7 +82,7 @@ func (c *projectController) GetAllProject(ctx *gin.Context) {
 }
 
 func (c *projectController) GetProject(ctx *gin.Context) {
-	projectId_, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	projectId_, err := strconv.ParseUint(ctx.Param("project_id"), 10, 32)
 
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_PROJECT, err.Error(), nil)
@@ -105,7 +105,7 @@ func (c *projectController) GetProject(ctx *gin.Context) {
 
 func (c *projectController) UploadDocument(ctx *gin.Context) {
 	userId := ctx.MustGet("user_id").(string)
-	projectId_, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	projectId_, err := strconv.ParseUint(ctx.Param("project_id"), 10, 32)
 
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPLOAD_DOCUMENT, err.Error(), nil)
@@ -123,8 +123,8 @@ func (c *projectController) UploadDocument(ctx *gin.Context) {
 	}
 
 	req := dto.UploadDocumentRequest{
-		Title: document.Title,
-		File: document.File,
+		Title:     document.Title,
+		File:      document.File,
 		ProjectID: projectId,
 	}
 
@@ -150,7 +150,7 @@ func (c *projectController) UploadDocument(ctx *gin.Context) {
 }
 
 func (c *projectController) GetDocument(ctx *gin.Context) {
-	projectId_, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	projectId_, err := strconv.ParseUint(ctx.Param("project_id"), 10, 32)
 
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPLOAD_DOCUMENT, err.Error(), nil)
@@ -179,7 +179,7 @@ func (c *projectController) Update(ctx *gin.Context) {
 		return
 	}
 
-	projectId_, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	projectId_, err := strconv.ParseUint(ctx.Param("project_id"), 10, 32)
 
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_PROJECT, err.Error(), nil)
@@ -201,7 +201,7 @@ func (c *projectController) Update(ctx *gin.Context) {
 }
 
 func (c *projectController) Delete(ctx *gin.Context) {
-	projectId_, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	projectId_, err := strconv.ParseUint(ctx.Param("project_id"), 10, 32)
 
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_PROJECT, err.Error(), nil)

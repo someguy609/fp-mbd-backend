@@ -20,10 +20,10 @@ func Project(route *gin.Engine, injector *do.Injector) {
 		// todo: convert roles into enum
 		routes.POST("", middleware.Authenticate(jwtService), middleware.RequireRoles("dosen"), projectController.Create)
 		routes.GET("", middleware.Authenticate(jwtService), projectController.GetAllProject)
-		routes.GET("/:id", middleware.Authenticate(jwtService), projectController.GetProject)
-		routes.PATCH("/:id", middleware.Authenticate(jwtService), middleware.RequireRoles("dosen"), projectController.Update)
-		routes.DELETE("/:id", middleware.Authenticate(jwtService), middleware.RequireRoles("dosen"), projectController.Delete)
-		routes.POST("/:id/documents", middleware.Authenticate(jwtService), projectController.UploadDocument)
-		routes.GET("/:id/documents", middleware.Authenticate(jwtService), projectController.GetDocument)
+		routes.GET("/:project_id", middleware.Authenticate(jwtService), projectController.GetProject)
+		routes.PATCH("/:project_id", middleware.Authenticate(jwtService), middleware.RequireRoles("dosen"), projectController.Update)
+		routes.DELETE("/:project_id", middleware.Authenticate(jwtService), middleware.RequireRoles("dosen"), projectController.Delete)
+		routes.POST("/:project_id/documents", middleware.Authenticate(jwtService), projectController.UploadDocument)
+		routes.GET("/:project_id/documents", middleware.Authenticate(jwtService), projectController.GetDocument)
 	}
 }
