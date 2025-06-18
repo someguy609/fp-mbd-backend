@@ -98,18 +98,24 @@ func (s *projectMemberService) GetProjectMembers(ctx context.Context, projectId 
 	return projectMemberResponses, nil
 }
 func (s *projectMemberService) GetJoinRequests(ctx context.Context, projectId uint, userId string) ([]dto.ProjectMemberGetResponse, error) {
+	println("GetJoinRequests called with projectId:", projectId, "and userId:", userId)
+	println("duarrr")
 	user, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
+		println("Error fetching user by ID:", err)
 		return nil, err
 	}
 	is_inproject, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, projectId)
 	if err != nil {
+		println("Error checking if user is in project:", err)
 		return nil, err
 	}
 
 	if user.Role != "dosen" || !is_inproject {
 		return nil, dto.ErrUnauthorizedUpdateProjectMember
 	}
+
+	println("Fetching join requests for project ID:", projectId)
 
 	projectMembers, err := s.projectMemberRepo.GetJoinRequests(ctx, nil, projectId)
 	if err != nil {

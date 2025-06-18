@@ -45,12 +45,20 @@ func NewMilestoneService(
 
 func (s *milestoneService) Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string, projectId uint) (dto.MilestoneCreateResponse, error) {
 
+	println("service: Create Milestone")
 	user, err := s.userRepo.GetUserById(ctx, nil, userId)
+	if err != nil {
+		return dto.MilestoneCreateResponse{}, err
+	}
 
 	user_role := user.Role
 	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, projectId)
+	if err != nil {
+		return dto.MilestoneCreateResponse{}, err
+	}
 
-	if user_role != "dosen" || is_project_member == false {
+	if user_role != "dosen" || !is_project_member {
+		println("service: Create Milestone - Unauthorized")
 		return dto.MilestoneCreateResponse{}, dto.ErrCreateMilestone
 	}
 
@@ -61,11 +69,11 @@ func (s *milestoneService) Create(ctx context.Context, req dto.MilestoneCreateRe
 	}
 
 	milestone := entity.Milestone{
-		Title:       req.Title,
-		Description: req.Description,
-		DueDate:     parsedDueDate,
-		Status:      req.Status,
-		ProjectID:   projectId,
+		Title:             req.Title,
+		Description:       req.Description,
+		DueDate:           parsedDueDate,
+		Status:            req.Status,
+		ProjectsProjectID: projectId,
 	}
 
 	milestone_repo_res, err := s.milestoneRepo.Create(ctx, nil, milestone)
@@ -109,6 +117,7 @@ func (s *milestoneService) GetMilestonesByProjectId(ctx context.Context, project
 
 func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string, milestoneId uint) (dto.MilestoneUpdateResponse, error) {
 
+	println("service: Update Milestone - User ID:", userId, "Milestone ID:", milestoneId)
 	user_id, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
 		return dto.MilestoneUpdateResponse{}, err
@@ -118,11 +127,15 @@ func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRe
 	if err != nil {
 		return dto.MilestoneUpdateResponse{}, err
 	}
+	println("service: Update Milestone - Project ID:", projectId)
 
 	user_role := user_id.Role
 	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, projectId)
+	if err != nil {
+		return dto.MilestoneUpdateResponse{}, err
+	}
 
-	if user_role != "admin" || is_project_member == false {
+	if user_role != "admin" || !is_project_member {
 		return dto.MilestoneUpdateResponse{}, dto.ErrUpdateMilestone
 	}
 
@@ -141,12 +154,12 @@ func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRe
 			return dto.MilestoneUpdateResponse{}, errors.New("internal error: failed to parse date after validation")
 		}
 		updatedMilestone = entity.Milestone{
-			MilestoneID: milestoneId,
-			ProjectID:   projectId,
-			Title:       req.Title,
-			Description: req.Description,
-			DueDate:     parsedDueDate,
-			Status:      req.Status,
+			MilestoneID:       milestoneId,
+			ProjectsProjectID: projectId,
+			Title:             req.Title,
+			Description:       req.Description,
+			DueDate:           parsedDueDate,
+			Status:            req.Status,
 		}
 	}
 	milestone, err := s.milestoneRepo.Update(ctx, nil, updatedMilestone)

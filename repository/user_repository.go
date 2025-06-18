@@ -4,6 +4,7 @@ import (
 	"context"
 	"fp_mbd/dto"
 	"fp_mbd/entity"
+	"log"
 
 	"gorm.io/gorm"
 )
@@ -92,8 +93,11 @@ func (r *userRepository) GetUserById(ctx context.Context, tx *gorm.DB, userId st
 		tx = r.db
 	}
 
+	println("duarrr user repo get user by id:", userId)
+
 	var user entity.User
 	if err := tx.WithContext(ctx).Where("user_id = ?", userId).Take(&user).Error; err != nil {
+		log.Println("Error in GetUserById:", err)
 		return entity.User{}, err
 	}
 
@@ -105,8 +109,11 @@ func (r *userRepository) GetUserByEmail(ctx context.Context, tx *gorm.DB, email 
 		tx = r.db
 	}
 
+	println("GetUserByEmail called with email:", email)
+
 	var user entity.User
 	if err := tx.WithContext(ctx).Where("email = ?", email).Take(&user).Error; err != nil {
+		print("Error in GetUserByEmail:", err)
 		return entity.User{}, err
 	}
 

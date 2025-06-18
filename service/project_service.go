@@ -13,7 +13,7 @@ import (
 
 type (
 	ProjectService interface {
-		Create(ctx context.Context, req dto.ProjectCreateRequest) (dto.ProjectResponse, error)
+		Create(ctx context.Context, req dto.ProjectCreateRequest, userId string) (dto.ProjectResponse, error)
 		GetAllProjectWithPagination(ctx context.Context, req dto.PaginationRequest) (dto.ProjectPaginationResponse, error)
 		GetProjectById(ctx context.Context, projectId uint, preload ...string) (dto.ProjectResponse, error)
 		Update(ctx context.Context, req dto.ProjectUpdateRequest, projectId uint) (dto.ProjectUpdateResponse, error)
@@ -21,21 +21,24 @@ type (
 	}
 
 	projectService struct {
-		userRepo    repository.UserRepository
-		projectRepo repository.ProjectRepository
-		db          *gorm.DB
+		userRepo          repository.UserRepository
+		projectRepo       repository.ProjectRepository
+		projectMemberRepo repository.ProjectMemberRepository
+		db                *gorm.DB
 	}
 )
 
 func NewProjectService(
 	userRepo repository.UserRepository,
 	projectRepo repository.ProjectRepository,
+	projectMemberRepo repository.ProjectMemberRepository,
 	db *gorm.DB,
 ) ProjectService {
 	return &projectService{
-		userRepo:    userRepo,
-		projectRepo: projectRepo,
-		db:          db,
+		userRepo:          userRepo,
+		projectRepo:       projectRepo,
+		projectMemberRepo: projectMemberRepo,
+		db:                db,
 	}
 }
 
@@ -47,11 +50,19 @@ func NewProjectService(
 // 	}
 // }
 
-func (s *projectService) Create(ctx context.Context, req dto.ProjectCreateRequest) (dto.ProjectResponse, error) {
+func (s *projectService) Create(ctx context.Context, req dto.ProjectCreateRequest, userId string) (dto.ProjectResponse, error) {
 
 	_, err := s.projectRepo.GetProjectByTitle(ctx, nil, req.Title)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return dto.ProjectResponse{}, err
+	}
+	user, err := s.userRepo.GetUserById(ctx, nil, userId)
+	if err != nil {
+		return dto.ProjectResponse{}, dto.ErrUserNotFound
+	}
+
+	if user.Role != "dosen" {
+		return dto.ProjectResponse{}, dto.ErrUnauthorizedCreateProject
 	}
 
 	project := entity.Project{
@@ -65,6 +76,18 @@ func (s *projectService) Create(ctx context.Context, req dto.ProjectCreateReques
 	projectReg, err := s.projectRepo.Create(ctx, nil, project)
 	if err != nil {
 		return dto.ProjectResponse{}, dto.ErrCreateProject
+	}
+
+	projectMember := entity.ProjectMember{
+		IsActive:          true,
+		RoleProject:       dto.ROLE_PROJECT_DOSEN,
+		UsersUserID:       userId,
+		ProjectsProjectID: projectReg.ProjectID,
+	}
+
+	_, err = s.projectMemberRepo.Create(ctx, nil, projectMember)
+	if err != nil {
+		return dto.ProjectResponse{}, dto.ErrCreateProjectMember
 	}
 
 	return dto.ProjectResponse{

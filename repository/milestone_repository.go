@@ -83,5 +83,5 @@ func (r *milestoneRepository) GetProjectIdByMilestoneId(ctx context.Context, tx 
 		return 0, err
 	}
 
-	return milestone.ProjectID, nil
+	return milestone.ProjectsProjectID, nil
 }
