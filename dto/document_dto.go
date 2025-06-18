@@ -56,6 +56,10 @@ type (
 		PaginationResponse
 	}
 
+	GetProjectDocumentsResponse struct {
+		Documents []entity.Document `json:"documents"`
+	}
+
 	DocumentUpdateRequest struct {
 		DocumentID uint                  `json:"document_id" form:"document_id"`
 		Title      string                `json:"title" form:"title" binding:"omitempty,min=2,max=100"`

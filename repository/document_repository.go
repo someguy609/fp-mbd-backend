@@ -16,6 +16,7 @@ type (
 			tx *gorm.DB,
 			req dto.PaginationRequest,
 		) (dto.GetAllDocumentRepositoryResponse, error)
+		GetProjectDocuments(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.Document, error)
 		GetDocumentById(ctx context.Context, tx *gorm.DB, documentId uint) (entity.Document, error)
 		Update(ctx context.Context, tx *gorm.DB, document entity.Document) (entity.Document, error)
 		Delete(ctx context.Context, tx *gorm.DB, documentId uint) error
@@ -82,6 +83,25 @@ func (r *documentRepository) GetAllDocumentWithPagination(
 			MaxPage: totalPage,
 		},
 	}, err
+}
+
+func (r *documentRepository) GetProjectDocuments(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.Document, error) {
+	if tx == nil {
+		tx = r.db
+	}
+
+	var documents []entity.Document
+	var err error
+
+	query := tx.WithContext(ctx).Model(&entity.Document{}).
+		Where("projects_project_id = ?", projectId).
+		Order("created_at DESC")
+
+	if err := query.Find(&documents).Error; err != nil {
+		return nil, err
+	}
+
+	return documents, err
 }
 
 func (r *documentRepository) GetDocumentById(ctx context.Context, tx *gorm.DB, documentId uint) (entity.Document, error) {

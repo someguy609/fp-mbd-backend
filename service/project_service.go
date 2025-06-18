@@ -16,6 +16,7 @@ type (
 		Create(ctx context.Context, req dto.ProjectCreateRequest, userId string) (dto.ProjectResponse, error)
 		GetAllProjectWithPagination(ctx context.Context, req dto.PaginationRequest) (dto.ProjectPaginationResponse, error)
 		GetProjectById(ctx context.Context, projectId uint, preload ...string) (dto.ProjectResponse, error)
+		GetProjectDocuments(ctx context.Context, projectId uint) (dto.GetProjectDocumentsResponse, error)
 		Update(ctx context.Context, req dto.ProjectUpdateRequest, projectId uint) (dto.ProjectUpdateResponse, error)
 		Delete(ctx context.Context, projectId uint) error
 	}
@@ -23,6 +24,7 @@ type (
 	projectService struct {
 		userRepo          repository.UserRepository
 		projectRepo       repository.ProjectRepository
+		documentRepo      repository.DocumentRepository
 		projectMemberRepo repository.ProjectMemberRepository
 		db                *gorm.DB
 	}
@@ -31,12 +33,14 @@ type (
 func NewProjectService(
 	userRepo repository.UserRepository,
 	projectRepo repository.ProjectRepository,
+	documentRepo repository.DocumentRepository,
 	projectMemberRepo repository.ProjectMemberRepository,
 	db *gorm.DB,
 ) ProjectService {
 	return &projectService{
 		userRepo:          userRepo,
 		projectRepo:       projectRepo,
+		documentRepo:      documentRepo,
 		projectMemberRepo: projectMemberRepo,
 		db:                db,
 	}
@@ -148,6 +152,17 @@ func (s *projectService) GetProjectById(ctx context.Context, projectId uint, pre
 		StartDate:  project.StartDate,
 		EndDate:    project.EndDate,
 		Categories: project.Categories,
+	}, nil
+}
+
+func (s *projectService) GetProjectDocuments(ctx context.Context, projectId uint) (dto.GetProjectDocumentsResponse, error) {
+	documents, err := s.documentRepo.GetProjectDocuments(ctx, nil, projectId)
+	if err != nil {
+		return dto.GetProjectDocumentsResponse{}, err
+	}
+
+	return dto.GetProjectDocumentsResponse{
+		Documents: documents,
 	}, nil
 }
 
