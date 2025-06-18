@@ -178,7 +178,7 @@ func (r *userRepository) GetUserProjectsByUserId(ctx context.Context, tx *gorm.D
 	var projects []entity.Project
 	if err := tx.WithContext(ctx).Model(&entity.Project{}).
 		Joins("JOIN project_members ON project_members.projects_project_id = projects.project_id").
-		Where("project_members.users_user_id = ? AND project_members.is_active = ?", userId, true).
+		Where("project_members.users_user_id = ?", userId).
 		Find(&projects).Error; err != nil {
 		return nil, err
 	}
