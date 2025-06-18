@@ -38,7 +38,7 @@ func run(server *gin.Engine) {
 
 	var serve string
 	if os.Getenv("APP_ENV") == "localhost" {
-		serve = "0.0.0.0:" + port
+		serve = "127.0.0.1:" + port
 	} else {
 		serve = ":" + port
 	}
