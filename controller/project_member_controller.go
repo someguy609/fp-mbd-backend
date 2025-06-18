@@ -108,6 +108,28 @@ func (c *projectMemberController) GetJoinRequests(ctx *gin.Context) {
 
 }
 func (c *projectMemberController) ApproveJoinRequest(ctx *gin.Context) {
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+		return
+	}
+	projectMemberId := ctx.Param("projectMemberId")
+	if projectMemberId == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Project Member ID is required"})
+		return
+	}
+	projectMemberIdUint, err := utils.StringToUint(projectMemberId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Project Member ID"})
+		return
+	}
+	result, err := c.projectMemberService.ApproveJoinRequest(ctx.Request.Context(), projectMemberIdUint, userId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to approve join request"})
+		return
+	}
+	ctx.JSON(http.StatusOK, result)
+
 }
 
 // func (c *projectMemberController) GetProjectMemberByProjecMemberId(ctx *gin.Context) {

@@ -45,8 +45,11 @@ func (r *milestoneRepository) GetMilestonesByProjectId(ctx context.Context, tx *
 
 	var milestones []entity.Milestone
 	if err := tx.WithContext(ctx).Where("projects_project_id = ?", projectId).Find(&milestones).Error; err != nil {
+		println("Error retrieving milestones:", err)
 		return nil, err
 	}
+
+	println("Retrieved milestones:", len(milestones))
 
 	return milestones, nil
 }
@@ -79,7 +82,7 @@ func (r *milestoneRepository) GetProjectIdByMilestoneId(ctx context.Context, tx 
 	}
 
 	var milestone entity.Milestone
-	if err := tx.WithContext(ctx).Select("project_id").Where("milestone_id = ?", milestoneId).First(&milestone).Error; err != nil {
+	if err := tx.WithContext(ctx).Select("projects_project_id").Where("milestone_id = ?", milestoneId).First(&milestone).Error; err != nil {
 		return 0, err
 	}
 

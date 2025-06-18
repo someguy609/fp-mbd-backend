@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func ProvideMilestoneDependencies(injector *do.Injector, db *gorm.DB, jwtService service.JWTService) {
+func ProvideMilestoneDependencies(injector *do.Injector, db *gorm.DB) {
 	// Repository
 	userRepository := repository.NewUserRepository(db)
 	milestoneRepository := repository.NewMilestoneRepository(db)
@@ -17,7 +17,7 @@ func ProvideMilestoneDependencies(injector *do.Injector, db *gorm.DB, jwtService
 	// refreshTokenRepository := repository.NewRefreshTokenRepository(db)
 
 	// Service
-	milestoneService := service.NewMilestoneService(milestoneRepository, userRepository, projectMemberRepository, jwtService, db)
+	milestoneService := service.NewMilestoneService(milestoneRepository, userRepository, projectMemberRepository, db)
 
 	// Controller
 	do.Provide(

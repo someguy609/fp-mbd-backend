@@ -9,14 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func ProvideProjectMemberDependencies(injector *do.Injector, db *gorm.DB, jwtService service.JWTService) {
+func ProvideProjectMemberDependencies(injector *do.Injector, db *gorm.DB) {
 	// Repository
 	userRepository := repository.NewUserRepository(db)
 	projectMemberRepository := repository.NewProjectMemberRepository(db)
 	// refreshTokenRepository := repository.NewRefreshTokenRepository(db)
 
 	// Service
-	projectMemberService := service.NewProjectMemberService(userRepository, projectMemberRepository, jwtService, db)
+	projectMemberService := service.NewProjectMemberService(userRepository, projectMemberRepository, db)
 
 	// Controller
 	do.Provide(

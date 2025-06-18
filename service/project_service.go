@@ -60,14 +60,6 @@ func (s *projectService) Create(ctx context.Context, req dto.ProjectCreateReques
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return dto.ProjectResponse{}, err
 	}
-	user, err := s.userRepo.GetUserById(ctx, nil, userId)
-	if err != nil {
-		return dto.ProjectResponse{}, dto.ErrUserNotFound
-	}
-
-	if user.Role != "dosen" {
-		return dto.ProjectResponse{}, dto.ErrUnauthorizedCreateProject
-	}
 
 	project := entity.Project{
 		Title:       req.Title,
