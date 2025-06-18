@@ -130,6 +130,9 @@ func (c *userController) Me(ctx *gin.Context) {
 }
 
 func (c *userController) Login(ctx *gin.Context) {
+
+	println("Login called")
+
 	var req dto.UserLoginRequest
 	if err := ctx.ShouldBind(&req); err != nil {
 		response := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)

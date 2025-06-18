@@ -222,10 +222,14 @@ func (s *userService) Delete(ctx context.Context, userId string, userIdParams st
 }
 
 func (s *userService) Login(ctx context.Context, req dto.UserLoginRequest) (dto.TokenResponse, error) {
+	println("Login request received:")
+
 	user, err := s.userRepo.GetUserByEmail(ctx, nil, req.Email)
 	if err != nil {
 		return dto.TokenResponse{}, dto.ErrUserNotFound
 	}
+
+	println("User found:", user.UserID)
 
 	check_pw, err := helpers.CheckPassword(user.Password, []byte(req.Password))
 	if err != nil {
