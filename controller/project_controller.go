@@ -167,7 +167,7 @@ func (c *projectController) GetDocument(ctx *gin.Context) {
 
 	projectId := uint(projectId_)
 
-	result, err := c.projectService.GetProjectById(ctx.Request.Context(), projectId, "documents")
+	result, err := c.projectService.GetProjectDocuments(ctx.Request.Context(), projectId)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPLOAD_DOCUMENT, err.Error(), nil)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
