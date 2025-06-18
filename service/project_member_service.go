@@ -96,7 +96,7 @@ func (s *projectMemberService) GetProjectMembers(ctx context.Context, projectId 
 }
 func (s *projectMemberService) GetJoinRequests(ctx context.Context, projectId uint, userId string) ([]dto.ProjectMemberGetResponse, error) {
 	println("GetJoinRequests called with projectId:", projectId, "and userId:", userId)
-	println("duarrr")
+
 	user, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
 		println("Error fetching user by ID:", err)
@@ -111,8 +111,6 @@ func (s *projectMemberService) GetJoinRequests(ctx context.Context, projectId ui
 	if user.Role != "dosen" || !is_inproject {
 		return nil, dto.ErrUnauthorizedUpdateProjectMember
 	}
-
-	println("Fetching join requests for project ID:", projectId)
 
 	projectMembers, err := s.projectMemberRepo.GetJoinRequests(ctx, nil, projectId)
 	if err != nil {
@@ -132,28 +130,32 @@ func (s *projectMemberService) GetJoinRequests(ctx context.Context, projectId ui
 	return projectMemberResponses, nil
 }
 func (s *projectMemberService) ApproveJoinRequest(ctx context.Context, projectMemberId uint, userId string) (dto.ProjectMemberUpdateResponse, error) {
-	user, err := s.userRepo.GetUserById(ctx, nil, userId)
+
+	projectMember, err := s.projectMemberRepo.GetProjectMemberByProjectMemberId(ctx, nil, projectMemberId)
 	if err != nil {
 		return dto.ProjectMemberUpdateResponse{}, err
 	}
-	is_inproject, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, projectMemberId)
+
+	is_inproject, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, projectMember.ProjectsProjectID)
 	if err != nil {
 		return dto.ProjectMemberUpdateResponse{}, err
 	}
-	if user.Role != "dosen" || !is_inproject {
+
+	if !is_inproject {
 		return dto.ProjectMemberUpdateResponse{}, dto.ErrUnauthorizedUpdateProjectMember
 	}
-	projectMember, err := s.projectMemberRepo.ApproveJoinRequest(ctx, nil, projectMemberId)
+
+	projectMemberBaru, err := s.projectMemberRepo.ApproveJoinRequest(ctx, nil, projectMemberId)
 	if err != nil {
 		return dto.ProjectMemberUpdateResponse{}, err
 	}
 	return dto.ProjectMemberUpdateResponse{
-		ProjectMemberID: projectMember.ProjectMemberID,
-		UserID:          projectMember.UsersUserID,
-		ProjectID:       projectMember.ProjectsProjectID,
-		RoleProject:     projectMember.RoleProject,
-		JoinedAt:        projectMember.JoinedAt.String(),
-		IsActive:        projectMember.IsActive,
+		ProjectMemberID: projectMemberBaru.ProjectMemberID,
+		UserID:          projectMemberBaru.UsersUserID,
+		ProjectID:       projectMemberBaru.ProjectsProjectID,
+		RoleProject:     projectMemberBaru.RoleProject,
+		JoinedAt:        projectMemberBaru.JoinedAt.String(),
+		IsActive:        projectMemberBaru.IsActive,
 	}, nil
 }
 

@@ -93,7 +93,7 @@ func (r *userRepository) GetUserById(ctx context.Context, tx *gorm.DB, userId st
 		tx = r.db
 	}
 
-	println("duarrr user repo get user by id:", userId)
+	println("GetUserById in User Repo called with userId:", userId)
 
 	var user entity.User
 	if err := tx.WithContext(ctx).Where("user_id = ?", userId).Take(&user).Error; err != nil {
