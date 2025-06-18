@@ -22,7 +22,6 @@ type (
 		milestoneRepo     repository.MilestoneRepository
 		userRepo          repository.UserRepository
 		projectMemberRepo repository.ProjectMemberRepository
-		jwtService        JWTService
 		db                *gorm.DB
 	}
 )
@@ -31,14 +30,12 @@ func NewMilestoneService(
 	milestoneRepo repository.MilestoneRepository,
 	userRepo repository.UserRepository,
 	projectMemberRepo repository.ProjectMemberRepository,
-	jwtService JWTService,
 	db *gorm.DB,
 ) MilestoneService {
 	return &milestoneService{
 		milestoneRepo:     milestoneRepo,
 		userRepo:          userRepo,
 		projectMemberRepo: projectMemberRepo,
-		jwtService:        jwtService,
 		db:                db,
 	}
 }
@@ -117,7 +114,6 @@ func (s *milestoneService) GetMilestonesByProjectId(ctx context.Context, project
 
 func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string, milestoneId uint) (dto.MilestoneUpdateResponse, error) {
 
-	println("service: Update Milestone - User ID:", userId, "Milestone ID:", milestoneId)
 	user_id, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
 		return dto.MilestoneUpdateResponse{}, err
@@ -127,7 +123,6 @@ func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRe
 	if err != nil {
 		return dto.MilestoneUpdateResponse{}, err
 	}
-	println("service: Update Milestone - Project ID:", projectId)
 
 	user_role := user_id.Role
 	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, projectId)
@@ -135,7 +130,7 @@ func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRe
 		return dto.MilestoneUpdateResponse{}, err
 	}
 
-	if user_role != "admin" || !is_project_member {
+	if !is_project_member {
 		return dto.MilestoneUpdateResponse{}, dto.ErrUpdateMilestone
 	}
 

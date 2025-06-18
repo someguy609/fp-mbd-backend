@@ -15,15 +15,14 @@ type (
 		GetProjectMembers(ctx context.Context, projectId uint) ([]dto.ProjectMemberGetResponse, error)
 		GetJoinRequests(ctx context.Context, projectId uint, userId string) ([]dto.ProjectMemberGetResponse, error)
 		ApproveJoinRequest(ctx context.Context, projectMemberId uint, userId string) (dto.ProjectMemberUpdateResponse, error)
-		// GetProjectMemberByProjectMemberId(ctx context.Context, projectMemberId uint) (dto.ProjectMemberGetResponse, error)
 		Update(ctx context.Context, req dto.ProjectMemberUpdateRequest, projectMemberId uint, userId string) (dto.ProjectMemberUpdateResponse, error)
 		Delete(ctx context.Context, projectMemberId uint) error
+		// GetProjectMemberByProjectMemberId(ctx context.Context, projectMemberId uint) (dto.ProjectMemberGetResponse, error)
 	}
 
 	projectMemberService struct {
 		userRepo          repository.UserRepository
 		projectMemberRepo repository.ProjectMemberRepository
-		jwtService        JWTService
 		db                *gorm.DB
 	}
 )
@@ -31,13 +30,11 @@ type (
 func NewProjectMemberService(
 	userRepo repository.UserRepository,
 	projectMemberRepo repository.ProjectMemberRepository,
-	jwtService JWTService,
 	db *gorm.DB,
 ) ProjectMemberService {
 	return &projectMemberService{
 		userRepo:          userRepo,
 		projectMemberRepo: projectMemberRepo,
-		jwtService:        jwtService,
 		db:                db,
 	}
 }
