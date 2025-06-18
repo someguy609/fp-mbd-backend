@@ -14,11 +14,12 @@ func ProvideProjectDependencies(injector *do.Injector, db *gorm.DB, minioClient 
 	// Repository
 	userRepository := repository.NewUserRepository(db)
 	projectRepository := repository.NewProjectRepository(db)
+	projectMemberRepository := repository.NewProjectMemberRepository(db)
 	documentRepository := repository.NewDocumentRepository(db)
 	minioRepository := repository.NewMinioRepository(minioClient, "main")
 
 	// Service
-	projectService := service.NewProjectService(userRepository, projectRepository, db)
+	projectService := service.NewProjectService(userRepository, projectRepository, projectMemberRepository, db)
 	documentService := service.NewDocumentService(documentRepository, minioRepository, db)
 
 	// Controller

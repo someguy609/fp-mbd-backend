@@ -45,6 +45,7 @@ func NewMilestoneService(
 
 func (s *milestoneService) Create(ctx context.Context, req dto.MilestoneCreateRequest, userId string, projectId uint) (dto.MilestoneCreateResponse, error) {
 
+	println("service: Create Milestone")
 	user, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
 		return dto.MilestoneCreateResponse{}, err
@@ -57,6 +58,7 @@ func (s *milestoneService) Create(ctx context.Context, req dto.MilestoneCreateRe
 	}
 
 	if user_role != "dosen" || !is_project_member {
+		println("service: Create Milestone - Unauthorized")
 		return dto.MilestoneCreateResponse{}, dto.ErrCreateMilestone
 	}
 
@@ -115,6 +117,7 @@ func (s *milestoneService) GetMilestonesByProjectId(ctx context.Context, project
 
 func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRequest, userId string, milestoneId uint) (dto.MilestoneUpdateResponse, error) {
 
+	println("service: Update Milestone - User ID:", userId, "Milestone ID:", milestoneId)
 	user_id, err := s.userRepo.GetUserById(ctx, nil, userId)
 	if err != nil {
 		return dto.MilestoneUpdateResponse{}, err
@@ -124,6 +127,7 @@ func (s *milestoneService) Update(ctx context.Context, req dto.MilestoneUpdateRe
 	if err != nil {
 		return dto.MilestoneUpdateResponse{}, err
 	}
+	println("service: Update Milestone - Project ID:", projectId)
 
 	user_role := user_id.Role
 	is_project_member, err := s.projectMemberRepo.IsUserInProject(ctx, nil, userId, projectId)

@@ -21,14 +21,17 @@ const (
 	MESSAGE_SUCCESS_GET_PROJECT      = "success get project"
 	MESSAGE_SUCCESS_UPDATE_PROJECT   = "success update project"
 	MESSAGE_SUCCESS_DELETE_PROJECT   = "success delete project"
+
+	ROLE_PROJECT_DOSEN = "manager"
 )
 
 var (
-	ErrCreateProject   = errors.New("failed to create project")
-	ErrGetProjectById  = errors.New("failed to get project by id")
-	ErrUpdateProject   = errors.New("failed to update project")
-	ErrProjectNotFound = errors.New("project not found")
-	ErrDeleteProject   = errors.New("failed to delete project")
+	ErrCreateProject             = errors.New("failed to create project")
+	ErrGetProjectById            = errors.New("failed to get project by id")
+	ErrUpdateProject             = errors.New("failed to update project")
+	ErrProjectNotFound           = errors.New("project not found")
+	ErrDeleteProject             = errors.New("failed to delete project")
+	ErrUnauthorizedCreateProject = errors.New("unauthorized create project")
 )
 
 type (

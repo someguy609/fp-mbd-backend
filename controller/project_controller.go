@@ -45,7 +45,14 @@ func (c *projectController) Create(ctx *gin.Context) {
 		return
 	}
 
-	result, err := c.projectService.Create(ctx.Request.Context(), project)
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CREATE_PROJECT, "User ID is required", nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, res)
+		return
+	}
+
+	result, err := c.projectService.Create(ctx.Request.Context(), project, userId)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CREATE_PROJECT, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
