@@ -21,6 +21,7 @@ func User(route *gin.Engine, injector *do.Injector) {
 		authRoutes.POST("/login", userController.Login)
 		authRoutes.GET("/me", middleware.Authenticate(jwtService), userController.Me)
 		// authRoutes.POST("/logout", middleware.Authenticate(jwtService), userController.Logout)
+		authRoutes.GET("/users/:user_id/projects", middleware.Authenticate(jwtService), userController.GetUserProjects)
 	}
 	routes := route.Group("/api/user")
 	{

@@ -23,6 +23,7 @@ type (
 		Update(ctx context.Context, tx *gorm.DB, user entity.User) (entity.User, error)
 		Delete(ctx context.Context, tx *gorm.DB, userId string) error
 		GetUserRoleById(ctx context.Context, tx *gorm.DB, userId string) (string, error)
+		GetUserProjectsByUserId(ctx context.Context, tx *gorm.DB, userId string) ([]entity.Project, error)
 	}
 
 	userRepository struct {
@@ -168,4 +169,19 @@ func (r *userRepository) GetUserRoleById(ctx context.Context, tx *gorm.DB, userI
 	}
 
 	return user.Role, nil
+}
+func (r *userRepository) GetUserProjectsByUserId(ctx context.Context, tx *gorm.DB, userId string) ([]entity.Project, error) {
+	if tx == nil {
+		tx = r.db
+	}
+
+	var projects []entity.Project
+	if err := tx.WithContext(ctx).Model(&entity.Project{}).
+		Joins("JOIN project_members ON project_members.projects_project_id = projects.project_id").
+		Where("project_members.users_user_id = ? AND project_members.is_active = ?", userId, true).
+		Find(&projects).Error; err != nil {
+		return nil, err
+	}
+
+	return projects, nil
 }

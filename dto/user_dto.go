@@ -30,6 +30,9 @@ const (
 	MESSAGE_SUCCESS_DELETE_USER             = "success delete user"
 	MESSAGE_SEND_VERIFICATION_EMAIL_SUCCESS = "success send verification email"
 	MESSAGE_SUCCESS_VERIFY_EMAIL            = "success verify email"
+
+	MESSAGE_FAILED_GET_USER_PROJECTS  = "failed get user projects"
+	MESSAGE_SUCCESS_GET_USER_PROJECTS = "success get user projects"
 )
 
 var (

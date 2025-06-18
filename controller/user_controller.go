@@ -21,6 +21,7 @@ type (
 		GetUserByUserId(ctx *gin.Context)
 		Update(ctx *gin.Context)
 		Delete(ctx *gin.Context)
+		GetUserProjects(ctx *gin.Context)
 		// Logout(ctx *gin.Context)
 	}
 
@@ -271,3 +272,22 @@ func (c *userController) Delete(ctx *gin.Context) {
 // 	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_REFRESH_TOKEN, result)
 // 	ctx.JSON(http.StatusOK, res)
 // }
+
+func (c *userController) GetUserProjects(ctx *gin.Context) {
+	userId := ctx.GetString("user_id")
+	if userId == "" {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, "user_id is required", nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := c.userService.GetUserProjects(ctx.Request.Context(), userId)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_USER_PROJECTS, err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_GET_USER_PROJECTS, result)
+	ctx.JSON(http.StatusOK, res)
+}

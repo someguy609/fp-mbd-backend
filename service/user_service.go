@@ -22,6 +22,7 @@ type (
 		Update(ctx context.Context, req dto.UserUpdateRequest, userId string) (dto.UserUpdateResponse, error)
 		Delete(ctx context.Context, userId string, userIdParam string) error
 		Login(ctx context.Context, req dto.UserLoginRequest) (dto.TokenResponse, error)
+		GetUserProjects(ctx context.Context, userId string) ([]dto.ProjectResponse, error)
 		// Logout(ctx context.Context, userId string) error
 		// SendVerificationEmail(ctx context.Context, req dto.SendVerificationEmailRequest) error
 		// VerifyEmail(ctx context.Context, req dto.VerifyEmailRequest) (dto.VerifyEmailResponse, error)
@@ -358,3 +359,25 @@ func (s *userService) Login(ctx context.Context, req dto.UserLoginRequest) (dto.
 
 // 	return nil
 // }
+
+func (s *userService) GetUserProjects(ctx context.Context, userId string) ([]dto.ProjectResponse, error) {
+	projects, err := s.userRepo.GetUserProjectsByUserId(ctx, nil, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	var projectResponses []dto.ProjectResponse
+	for _, project := range projects {
+		projectResponses = append(projectResponses, dto.ProjectResponse{
+			ProjectID:   project.ProjectID,
+			Title:       project.Title,
+			Description: project.Description,
+			StartDate:   project.StartDate,
+			EndDate:     project.EndDate,
+			Categories:  project.Categories,
+			Status:      project.Status,
+		})
+	}
+
+	return projectResponses, nil
+}
