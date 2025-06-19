@@ -148,13 +148,22 @@ func (s *projectService) GetProjectById(ctx context.Context, projectId uint, pre
 		return dto.ProjectResponse{}, dto.ErrGetProjectById
 	}
 
+	projectMember, err := s.projectMemberRepo.GetProjectManager(ctx, nil, project.ProjectID)
+
+	author := "Unknown"
+	if err == nil {
+		author = projectMember.User.Name
+	}
+
 	return dto.ProjectResponse{
-		ProjectID:  project.ProjectID,
-		Title:      project.Title,
-		Status:     project.Status,
-		StartDate:  project.StartDate,
-		EndDate:    project.EndDate,
-		Categories: project.Categories,
+		ProjectID:   project.ProjectID,
+		Author:      author,
+		Title:       project.Title,
+		Description: project.Description,
+		Status:      project.Status,
+		StartDate:   project.StartDate,
+		EndDate:     project.EndDate,
+		Categories:  project.Categories,
 	}, nil
 }
 
