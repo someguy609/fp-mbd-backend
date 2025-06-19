@@ -21,12 +21,12 @@ func User(route *gin.Engine, injector *do.Injector) {
 		authRoutes.POST("/login", userController.Login)
 		authRoutes.GET("/me", middleware.Authenticate(jwtService), userController.Me)
 		// authRoutes.POST("/logout", middleware.Authenticate(jwtService), userController.Logout)
-		authRoutes.GET("/users/:user_id/projects", middleware.Authenticate(jwtService), userController.GetUserProjects)
 	}
 	routes := route.Group("/api/user")
 	{
 		// User
 		routes.GET("", middleware.Authenticate(jwtService), userController.GetAllUser) // admin only
+		routes.GET("/projects", middleware.Authenticate(jwtService), userController.GetUserProjects)
 		routes.GET("/:user_id", userController.GetUserByUserId)                        // admin only
 		routes.PATCH("/:user_id", middleware.Authenticate(jwtService), userController.Update)
 		routes.DELETE("/:user_id", middleware.Authenticate(jwtService), userController.Delete) // admin only
