@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+	// "github.com/lib/pq"
 
 	"fp_mbd/dto"
 	"fp_mbd/entity"
@@ -65,6 +66,7 @@ func (s *projectService) Create(ctx context.Context, req dto.ProjectCreateReques
 		Title:       req.Title,
 		Description: req.Description,
 		Status:      entity.StatusPlanning,
+		Categories:  req.Categories,
 		StartDate:   req.StartDate,
 		EndDate:     req.EndDate,
 	}

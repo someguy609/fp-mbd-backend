@@ -1,6 +1,10 @@
 package entity
 
-import "time"
+import (
+	"time"
+
+	"github.com/lib/pq"
+)
 
 type ProjectStatus string
 
@@ -12,14 +16,14 @@ const (
 )
 
 type Project struct {
-	ProjectID   uint          `gorm:"primaryKey;autoIncrement" json:"project_id"`
-	Title       string        `gorm:"type:varchar(100);not null" json:"title"`
-	Description string        `gorm:"type:text" json:"description"`
-	Status      ProjectStatus `gorm:"type:varchar(20);not null" json:"status"`
-	StartDate   time.Time     `json:"start_date"`
-	EndDate     time.Time     `json:"end_date"`
-	Categories  string        `gorm:"type:varchar(100)" json:"categories"` // array of strings ?
-	CreatedAt   time.Time     `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	ProjectID   uint           `gorm:"primaryKey;autoIncrement" json:"project_id"`
+	Title       string         `gorm:"type:varchar(100);not null" json:"title"`
+	Description string         `gorm:"type:text" json:"description"`
+	Status      ProjectStatus  `gorm:"type:varchar(20);not null" json:"status"`
+	StartDate   time.Time      `gorm:"default:CURRENT_TIMESTAMP" json:"start_date"`
+	EndDate     time.Time      `json:"end_date"`
+	Categories  pq.StringArray `gorm:"type:text[]" json:"categories"`
+	CreatedAt   time.Time      `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 
 	ProjectMembers []ProjectMember `gorm:"foreignKey:ProjectsProjectID" json:"project_members,omitempty"`
 	Milestones     []Milestone     `gorm:"foreignKey:ProjectsProjectID" json:"milestones,omitempty"`
