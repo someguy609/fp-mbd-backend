@@ -12,6 +12,7 @@ type (
 		Create(ctx context.Context, tx *gorm.DB, projectMember entity.ProjectMember) (entity.ProjectMember, error)
 		GetProjectMembers(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.ProjectMember, error)
 		GetProjectMemberByProjectMemberId(ctx context.Context, tx *gorm.DB, projectMemberId uint) (entity.ProjectMember, error)
+		GetProjectManager(ctx context.Context, tx *gorm.DB, projectId uint) (entity.ProjectMember, error)
 		GetJoinRequests(ctx context.Context, tx *gorm.DB, projectId uint) ([]entity.ProjectMember, error)
 		ApproveJoinRequest(ctx context.Context, tx *gorm.DB, projectMemberId uint) (entity.ProjectMember, error)
 		Update(ctx context.Context, tx *gorm.DB, projectMember entity.ProjectMember) (entity.ProjectMember, error)
@@ -94,6 +95,19 @@ func (r *projectMemberRepository) GetProjectMemberByProjectMemberId(ctx context.
 
 	var projectMember entity.ProjectMember
 	if err := tx.WithContext(ctx).Where("project_member_id = ?", projectMemberId).Take(&projectMember).Error; err != nil {
+		return entity.ProjectMember{}, err
+	}
+
+	return projectMember, nil
+}
+
+func (r *projectMemberRepository) GetProjectManager(ctx context.Context, tx *gorm.DB, projectId uint) (entity.ProjectMember, error) {
+	if tx == nil {
+		tx = r.db
+	}
+	
+	var projectMember entity.ProjectMember
+	if err := tx.WithContext(ctx).Preload("User").Where("projects_project_id = ? AND role_project = ?", projectId, "manager").Take(&projectMember).Error; err != nil {
 		return entity.ProjectMember{}, err
 	}
 

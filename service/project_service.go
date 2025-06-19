@@ -111,8 +111,16 @@ func (s *projectService) GetAllProjectWithPagination(
 
 	var datas []dto.ProjectResponse
 	for _, project := range dataWithPaginate.Projects {
+		projectMember, err := s.projectMemberRepo.GetProjectManager(ctx, nil, project.ProjectID)
+
+		author := "Unknown"
+		if err == nil {
+			author = projectMember.User.Name
+		}
+
 		data := dto.ProjectResponse{
 			ProjectID:   project.ProjectID,
+			Author:      author,
 			Title:       project.Title,
 			Description: project.Description,
 			StartDate:   project.StartDate,
