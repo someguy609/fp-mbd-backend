@@ -89,12 +89,13 @@ func (s *projectService) Create(ctx context.Context, req dto.ProjectCreateReques
 	}
 
 	return dto.ProjectResponse{
-		ProjectID:  projectReg.ProjectID,
-		Title:      projectReg.Title,
-		Status:     projectReg.Status,
-		StartDate:  projectReg.StartDate,
-		EndDate:    projectReg.EndDate,
-		Categories: projectReg.Categories,
+		ProjectID:   projectReg.ProjectID,
+		Title:       projectReg.Title,
+		Description: projectReg.Description,
+		Status:      projectReg.Status,
+		StartDate:   projectReg.StartDate,
+		EndDate:     projectReg.EndDate,
+		Categories:  projectReg.Categories,
 	}, nil
 
 }
@@ -110,8 +111,16 @@ func (s *projectService) GetAllProjectWithPagination(
 
 	var datas []dto.ProjectResponse
 	for _, project := range dataWithPaginate.Projects {
+		projectMember, err := s.projectMemberRepo.GetProjectManager(ctx, nil, project.ProjectID)
+
+		author := "Unknown"
+		if err == nil {
+			author = projectMember.User.Name
+		}
+
 		data := dto.ProjectResponse{
 			ProjectID:   project.ProjectID,
+			Author:      author,
 			Title:       project.Title,
 			Description: project.Description,
 			StartDate:   project.StartDate,

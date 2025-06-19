@@ -46,6 +46,7 @@ type (
 
 	ProjectResponse struct {
 		ProjectID   uint                 `json:"project_id"`
+		Author      string               `json:"author"`
 		Title       string               `json:"title"`
 		Description string               `json:"description"`
 		StartDate   time.Time            `json:"start_date"`
