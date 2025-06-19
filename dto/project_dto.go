@@ -41,7 +41,7 @@ type (
 		// Status      string    `gorm:"type:varchar(20);not null" json:"status"`
 		StartDate  time.Time `json:"start_date"`
 		EndDate    time.Time `json:"end_date"`
-		Categories string    `gorm:"type:varchar(100)" json:"categories"` // array of strings ?
+		Categories []string  `json:"categories"`
 	}
 
 	ProjectResponse struct {
@@ -50,7 +50,7 @@ type (
 		Description string               `json:"description"`
 		StartDate   time.Time            `json:"start_date"`
 		EndDate     time.Time            `json:"end_date"`
-		Categories  string               `json:"categories"`
+		Categories  []string             `json:"categories"`
 		Status      entity.ProjectStatus `json:"status"`
 	}
 
