@@ -36,12 +36,13 @@ var (
 
 type (
 	ProjectCreateRequest struct {
-		Title       string `gorm:"type:varchar(100);not null" json:"title"`
-		Description string `gorm:"type:text" json:"description"`
-		// Status      string    `gorm:"type:varchar(20);not null" json:"status"`
-		StartDate  time.Time `json:"start_date"`
-		EndDate    time.Time `json:"end_date"`
-		Categories []string  `json:"categories"`
+		Title       string     `json:"title"`
+		Description string     `json:"description"`
+		Filled      uint       `json:"filled"`
+		Total       uint       `json:"total"`
+		StartDate   time.Time  `json:"start_date"`
+		EndDate     *time.Time `json:"end_date,omitempty"`
+		Categories  []string   `json:"categories"`
 	}
 
 	ProjectResponse struct {
@@ -49,8 +50,10 @@ type (
 		Author      string               `json:"author"`
 		Title       string               `json:"title"`
 		Description string               `json:"description"`
+		Filled      uint                 `json:"filled"`
+		Total       uint                 `json:"total"`
 		StartDate   time.Time            `json:"start_date"`
-		EndDate     time.Time            `json:"end_date"`
+		EndDate     *time.Time           `json:"end_date"`
 		Categories  []string             `json:"categories"`
 		Status      entity.ProjectStatus `json:"status"`
 	}

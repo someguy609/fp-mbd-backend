@@ -20,8 +20,10 @@ type Project struct {
 	Title       string         `gorm:"type:varchar(100);not null" json:"title"`
 	Description string         `gorm:"type:text" json:"description"`
 	Status      ProjectStatus  `gorm:"type:varchar(20);not null" json:"status"`
+	Filled      uint           `gorm:"type:int;default:0" json:"filled"`
+	Total       uint           `gorm:"type:int;not null" json:"total"`
 	StartDate   time.Time      `gorm:"type:timestamp,default:CURRENT_TIMESTAMP" json:"start_date"`
-	EndDate     time.Time      `gorm:"type:timestamp" json:"end_date"`
+	EndDate     *time.Time     `gorm:"type:timestamp" json:"end_date"`
 	Categories  pq.StringArray `gorm:"type:text[]" json:"categories"`
 	CreatedAt   time.Time      `gorm:"type:timestamp,default:CURRENT_TIMESTAMP" json:"created_at"`
 
